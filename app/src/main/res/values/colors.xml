@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="ic_launcher_background">#26A69A</color>
+    <color name="colorPrimary">#26A69A</color>
+    <color name="colorPrimaryDark">#22958A</color>
+    <color name="colorAccent">#17879A</color>
+
+    <color name="busdark">#FF149434</color>
+    <color name="buslight">#FF16A63A</color>
+    <color name="tramdark">#c47924</color>
+    <color name="tramlight">#f7992d</color>
+    <color name="trolleydark">#2A76CC</color>
+    <color name="trolleylight">#2F84E3</color>
+
+    <color name="black">#000000</color>
+    <color name="grey">#88857E</color>
+    <color name="light_grey">#DFDFDC</color>
+    <color name="light_light_grey">#EFEFED</color>
+    <color name="light_light_light_grey">#FBFBFB</color>
+
+    <color name="darkred">#C02B1E</color>
+    <color name="darkgreen">#0FAD03</color>
+</resources>

@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Tallinn Transport</string>
+
+    <string name="navigation_timetable">Timetable</string>
+    <string name="navigation_map">Live map</string>
+
+    <string name="google_maps_key">AIzaSyDbzS8CBF-mAMWY7z-CE_QXC0JYvVy65V0</string>
+</resources>
