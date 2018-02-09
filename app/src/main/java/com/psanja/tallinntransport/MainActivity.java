@@ -15,6 +15,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -54,6 +55,8 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     private GoogleMap mMap;
     private FusedLocationProviderClient mFusedLocationClient;
     private MapManager mapManager;
+
+    private LinearLayout search;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,6 +103,8 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
             }
         });
 
+        search = findViewById(R.id.search);
+
         BottomNavigationView navigation = findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
@@ -107,13 +112,21 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                 switch (item.getItemId()) {
                     case R.id.navigation_timetable:
                         mapview.setVisibility(View.GONE);
+                        search.setVisibility(View.GONE);
                         refresh.setVisibility(View.VISIBLE);
                         mapManager.stop();
                         return true;
                     case R.id.navigation_map:
                         refresh.setVisibility(View.GONE);
+                        search.setVisibility(View.GONE);
                         mapview.setVisibility(View.VISIBLE);
                         mapManager.start();
+                        return true;
+                    case R.id.navigation_search:
+                        refresh.setVisibility(View.GONE);
+                        mapview.setVisibility(View.GONE);
+                        search.setVisibility(View.VISIBLE);
+                        mapManager.stop();
                         return true;
                 }
                 return false;
