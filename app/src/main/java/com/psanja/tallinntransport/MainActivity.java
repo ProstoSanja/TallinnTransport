@@ -12,9 +12,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.Editable;
-import android.text.TextWatcher;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
@@ -54,9 +51,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
     StopsManager stopsManager;
     private SwipeRefreshLayout refresh;
-    private RecyclerView recycler;
-    private DeparturesAdapter recyclerAdapter;
-    private RecyclerView.LayoutManager recyclerLayoutManager;
+    private DeparturesAdapter mainAdapter, searchAdapter;
 
     private FrameLayout mapview;
     private GoogleMap mMap;
@@ -84,13 +79,17 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         setRefresh(true);
         refresh.setOnRefreshListener(this);
 
-        recycler = findViewById(R.id.recycler_holder);
-        recyclerLayoutManager = new LinearLayoutManager(this);
-        recycler.setLayoutManager(recyclerLayoutManager);
-        recyclerAdapter = new DeparturesAdapter(new ArrayList<Stop>(), getApplicationContext());
-        recycler.setAdapter(recyclerAdapter);
+        RecyclerView recyclerView = findViewById(R.id.recycler_holder);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        mainAdapter = new DeparturesAdapter(new ArrayList<Stop>(), getApplicationContext());
+        recyclerView.setAdapter(mainAdapter);
 
-        stopsManager = new StopsManager(queue, recyclerAdapter);
+        RecyclerView searchView = findViewById(R.id.search_holder);
+        searchView.setLayoutManager(new LinearLayoutManager(this));
+        searchAdapter = new DeparturesAdapter(new ArrayList<Stop>(), getApplicationContext());
+        searchView.setAdapter(searchAdapter);
+
+        stopsManager = new StopsManager(queue);
 
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         mapview = findViewById(R.id.mapholder);
@@ -116,8 +115,8 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         searchname.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if (actionId == EditorInfo.IME_ACTION_DONE) {
-
+                if (actionId == EditorInfo.IME_ACTION_DONE && v.getText() != null) {
+                    SearchStops(v.getText().toString());
                 }
                 return false;
             }
@@ -158,7 +157,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     @Override
     public void onRefresh() {
         setRefresh(true);
-        recyclerAdapter.clear();
+        mainAdapter.clear();
         getNearestStops();
     }
 
@@ -233,13 +232,19 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                 String newname = stop.getString("name");
                 if (!Objects.equals(newname, name)) {
                     name = newname;
-                    stopsManager.get(name);
+                    stopsManager.get(name, mainAdapter);
                 }
             }
             setRefresh(false);
         } catch (JSONException e) {
             e.printStackTrace();
         }
+    }
+
+
+    private void SearchStops(String stop) {
+        searchAdapter.clear();
+        stopsManager.get(stop, searchAdapter);
     }
 
 }

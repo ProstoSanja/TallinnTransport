@@ -19,22 +19,20 @@ import java.util.Map;
 class StopsManager {
 
     private RequestQueue queue;
-    private DeparturesAdapter departuresAdapter;
 
     private Map<String, String[]> stoplist = new HashMap<>();
 
     private String currentName;
     private List<String> currentSiriIDs;
 
-    StopsManager(RequestQueue queue, DeparturesAdapter departuresAdapter) {
+    StopsManager(RequestQueue queue) {
         this.queue = queue;
-        this.departuresAdapter = departuresAdapter;
     }
 
-    void get(String name) {
+    void get(String name, DeparturesAdapter departuresAdapter) {
         String[] siriids = stoplist.get(name.toLowerCase());
         if (siriids != null) {
-            final ResponseCombiner responseCombiner = new ResponseCombiner(siriids.length, name);
+            final ResponseCombiner responseCombiner = new ResponseCombiner(siriids.length, name, departuresAdapter);
             for (String stop : siriids) {
                 String url = "https://transport.tallinn.ee/siri-stop-departures.php?stopid=" + stop;
                 StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
@@ -52,6 +50,10 @@ class StopsManager {
                 });
                 queue.add(stringRequest);
             }
+        } else {
+            Stop stop = new Stop(name);
+            stop.departures.add(new Departure(Departure.NOTFOUND));
+            departuresAdapter.add(stop);
         }
     }
 
@@ -61,11 +63,13 @@ class StopsManager {
         Integer position;
         Stop stop;
         Boolean error;
+        DeparturesAdapter departuresAdapter;
 
-        ResponseCombiner(Integer responses, String name) {
+        ResponseCombiner(Integer responses, String name, DeparturesAdapter departuresAdapter) {
             required = responses;
             stop = new Stop(name);
-            position = departuresAdapter.add(stop);
+            this.departuresAdapter = departuresAdapter;
+            position = this.departuresAdapter.add(stop);
         }
 
         void process(String response) {
@@ -87,9 +91,9 @@ class StopsManager {
 
             if (required <= 0) {
                 if (error != null) {
-                    stop.departures.add(new Departure(true));
+                    stop.departures.add(new Departure(Departure.ERROR));
                 } else if (stop.departures.size() <= 0) {
-                    stop.departures.add(new Departure(false));
+                    stop.departures.add(new Departure(Departure.NODEPARTURE));
                 } else {
                     Collections.sort(stop.departures, new Comparator<Departure>() {
                         @Override

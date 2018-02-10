@@ -8,6 +8,11 @@ public class Departure {
     public Boolean delay = false;
     public Integer arrivingseconds;
 
+
+    public static final int ERROR = 1;
+    public static final int NODEPARTURE = 2;
+    public static final int NOTFOUND = 3;
+
     public Departure(String raw) {
         String[] formatted = raw.split(",");
         if (formatted.length >= 5) {
@@ -23,19 +28,25 @@ public class Departure {
         }
     }
 
-    public Departure (Boolean iserror) {
-        if (!iserror) {
-            type = "none";
-            number = "No Departures";
-            arriving = "--:--";
-            delay = true;
-            destination = "";
-        } else {
-            type = "error";
-            number = "Tallinn government server reported error";
-            arriving = "";
-            delay = true;
-            destination = "";
+    public Departure (Integer action) {
+        delay = true;
+        destination = "";
+        switch (action) {
+            case ERROR:
+                type = "error";
+                number = "Tallinn government server reported error";
+                arriving = "";
+                break;
+            case NODEPARTURE:
+                type = "none";
+                number = "No Departures";
+                arriving = "--:--";
+                break;
+            case NOTFOUND:
+                type = "none";
+                number = "Stop not found";
+                arriving = "";
+                break;
         }
     }
 
