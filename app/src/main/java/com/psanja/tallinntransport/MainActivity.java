@@ -12,10 +12,17 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.util.Log;
+import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -57,6 +64,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     private MapManager mapManager;
 
     private LinearLayout search;
+    private EditText searchname;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,6 +112,16 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         });
 
         search = findViewById(R.id.search);
+        searchname = findViewById(R.id.search_name);
+        searchname.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+
+                }
+                return false;
+            }
+        });
 
         BottomNavigationView navigation = findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -113,6 +131,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                     case R.id.navigation_timetable:
                         mapview.setVisibility(View.GONE);
                         search.setVisibility(View.GONE);
+                        setRefresh(false);
                         refresh.setVisibility(View.VISIBLE);
                         mapManager.stop();
                         return true;

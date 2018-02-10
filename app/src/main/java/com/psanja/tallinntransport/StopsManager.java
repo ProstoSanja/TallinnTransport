@@ -19,16 +19,16 @@ import java.util.Map;
 class StopsManager {
 
     private RequestQueue queue;
-    private DeparturesAdapter recyclerAdapter;
+    private DeparturesAdapter departuresAdapter;
 
     private Map<String, String[]> stoplist = new HashMap<>();
 
     private String currentName;
     private List<String> currentSiriIDs;
 
-    StopsManager(RequestQueue queue, DeparturesAdapter recyclerAdapter) {
+    StopsManager(RequestQueue queue, DeparturesAdapter departuresAdapter) {
         this.queue = queue;
-        this.recyclerAdapter = recyclerAdapter;
+        this.departuresAdapter = departuresAdapter;
     }
 
     void get(String name) {
@@ -65,7 +65,7 @@ class StopsManager {
         ResponseCombiner(Integer responses, String name) {
             required = responses;
             stop = new Stop(name);
-            position = recyclerAdapter.add(stop);
+            position = departuresAdapter.add(stop);
         }
 
         void process(String response) {
@@ -101,7 +101,7 @@ class StopsManager {
                         stop.departures = new ArrayList<>(stop.departures.subList(0, 15));
                     }
                 }
-                recyclerAdapter.set(position, stop);
+                departuresAdapter.set(position, stop);
             }
         }
     }
