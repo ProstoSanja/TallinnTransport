@@ -6,8 +6,8 @@ android {
         applicationId "com.psanja.tallinntransport"
         minSdkVersion 23
         targetSdkVersion 26
-        versionCode 9
-        versionName "1.9"
+        versionCode 11
+        versionName "2.1"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {

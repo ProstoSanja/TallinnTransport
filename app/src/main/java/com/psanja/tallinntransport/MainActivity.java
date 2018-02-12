@@ -232,7 +232,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                 String newname = stop.getString("name");
                 if (!Objects.equals(newname, name)) {
                     name = newname;
-                    stopsManager.get(name, mainAdapter);
+                    stopsManager.get(name, 15, mainAdapter);
                 }
             }
             setRefresh(false);
@@ -244,7 +244,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
     private void SearchStops(String stop) {
         searchAdapter.clear();
-        stopsManager.get(stop, searchAdapter);
+        stopsManager.get(stop, 100, searchAdapter);
     }
 
 }

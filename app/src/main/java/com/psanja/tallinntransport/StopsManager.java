@@ -29,10 +29,10 @@ class StopsManager {
         this.queue = queue;
     }
 
-    void get(String name, DeparturesAdapter departuresAdapter) {
+    void get(String name, Integer limit, DeparturesAdapter departuresAdapter) {
         String[] siriids = stoplist.get(name.toLowerCase());
         if (siriids != null) {
-            final ResponseCombiner responseCombiner = new ResponseCombiner(siriids.length, name, departuresAdapter);
+            final ResponseCombiner responseCombiner = new ResponseCombiner(siriids.length, name, limit, departuresAdapter);
             for (String stop : siriids) {
                 String url = "https://transport.tallinn.ee/siri-stop-departures.php?stopid=" + stop;
                 StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
@@ -61,12 +61,14 @@ class StopsManager {
 
         Integer required;
         Integer position;
+        Integer limit;
         Stop stop;
         Boolean error;
         DeparturesAdapter departuresAdapter;
 
-        ResponseCombiner(Integer responses, String name, DeparturesAdapter departuresAdapter) {
+        ResponseCombiner(Integer responses, String name, Integer limit, DeparturesAdapter departuresAdapter) {
             required = responses;
+            this.limit = limit;
             stop = new Stop(name);
             this.departuresAdapter = departuresAdapter;
             position = this.departuresAdapter.add(stop);
@@ -101,8 +103,8 @@ class StopsManager {
                             return o1.arrivingseconds.compareTo(o2.arrivingseconds);
                         }
                     });
-                    if (stop.departures.size() > 20) {
-                        stop.departures = new ArrayList<>(stop.departures.subList(0, 15));
+                    if (stop.departures.size() > limit) {
+                        stop.departures = new ArrayList<>(stop.departures.subList(0, limit));
                     }
                 }
                 departuresAdapter.set(position, stop);
