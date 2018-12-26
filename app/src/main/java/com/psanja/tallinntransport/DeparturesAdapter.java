@@ -1,7 +1,7 @@
 package com.psanja.tallinntransport;
 
 import android.content.Context;
-import android.support.v7.widget.RecyclerView;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,7 +15,7 @@ import java.util.ArrayList;
 
 public class DeparturesAdapter extends RecyclerView.Adapter<DeparturesAdapter.ViewHolder> {
 
-    private ArrayList<Stop> dataset;
+    private ArrayList<Stop> dataset = new ArrayList<Stop>();
 
     private Context context;
 
@@ -39,8 +39,7 @@ public class DeparturesAdapter extends RecyclerView.Adapter<DeparturesAdapter.Vi
     }
 
     // Provide a suitable constructor (depends on the kind of dataset)
-    DeparturesAdapter(ArrayList<Stop> dataset, Context context) {
-        this.dataset = dataset;
+    DeparturesAdapter(Context context) {
         this.context = context;
     }
 

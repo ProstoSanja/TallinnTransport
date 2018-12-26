@@ -4,21 +4,20 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.pm.PackageManager;
 import android.location.Location;
-import android.support.annotation.NonNull;
-import android.support.design.widget.BottomNavigationView;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import androidx.core.app.ActivityCompat;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.FrameLayout;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.android.volley.Request;
@@ -35,14 +34,13 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.psanja.tallinntransport.DATAclasses.Stop;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
 import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener {
@@ -51,14 +49,13 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
     StopsManager stopsManager;
     private SwipeRefreshLayout refresh;
-    private DeparturesAdapter mainAdapter, searchAdapter;
+    private DeparturesAdapter mainAdapter;
 
     private FrameLayout mapview;
     private GoogleMap mMap;
     private FusedLocationProviderClient mFusedLocationClient;
     private MapManager mapManager;
 
-    private LinearLayout search;
     private EditText searchname;
 
     @Override
@@ -81,14 +78,8 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
         RecyclerView recyclerView = findViewById(R.id.recycler_holder);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        mainAdapter = new DeparturesAdapter(new ArrayList<Stop>(), getApplicationContext());
+        mainAdapter = new DeparturesAdapter(getApplicationContext());
         recyclerView.setAdapter(mainAdapter);
-
-        RecyclerView searchView = findViewById(R.id.search_holder);
-        searchView.setLayoutManager(new LinearLayoutManager(this));
-        searchAdapter = new DeparturesAdapter(new ArrayList<Stop>(), getApplicationContext());
-        searchView.setAdapter(searchAdapter);
-
         stopsManager = new StopsManager(queue);
 
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
@@ -99,7 +90,8 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
             @Override
             public void onMapReady(GoogleMap googleMap) {
                 mMap = googleMap;
-                googleMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
+                googleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(getApplicationContext(), R.raw.map_style));
+                //googleMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
                 googleMap.setTrafficEnabled(true);
                 googleMap.setMyLocationEnabled(true);
                 googleMap.getUiSettings().setRotateGesturesEnabled(false);
@@ -110,7 +102,6 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
             }
         });
 
-        search = findViewById(R.id.search);
         searchname = findViewById(R.id.search_name);
         searchname.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
@@ -126,25 +117,20 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         navigation.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                refresh.setVisibility(View.GONE);
+                mapview.setVisibility(View.GONE);
+                searchname.setVisibility(View.GONE);
                 switch (item.getItemId()) {
+                    case R.id.navigation_search:
+                        searchname.setVisibility(View.VISIBLE);
                     case R.id.navigation_timetable:
-                        mapview.setVisibility(View.GONE);
-                        search.setVisibility(View.GONE);
                         setRefresh(false);
                         refresh.setVisibility(View.VISIBLE);
                         mapManager.stop();
                         return true;
                     case R.id.navigation_map:
-                        refresh.setVisibility(View.GONE);
-                        search.setVisibility(View.GONE);
                         mapview.setVisibility(View.VISIBLE);
                         mapManager.start();
-                        return true;
-                    case R.id.navigation_search:
-                        refresh.setVisibility(View.GONE);
-                        mapview.setVisibility(View.GONE);
-                        search.setVisibility(View.VISIBLE);
-                        mapManager.stop();
                         return true;
                 }
                 return false;
@@ -225,8 +211,10 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     private void processNearestStops(JSONObject response) {
         try {
             String name = "";
-
             JSONArray stops = response.getJSONArray("stops");
+
+            mainAdapter.clear();
+
             for (int i=0; i < stops.length(); i++) {
                 JSONObject stop = stops.getJSONObject(i);
                 String newname = stop.getString("name");
@@ -243,8 +231,8 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
 
     private void SearchStops(String stop) {
-        searchAdapter.clear();
-        stopsManager.get(stop, 100, searchAdapter);
+        mainAdapter.clear();
+        stopsManager.get(stop, 100, mainAdapter);
     }
 
 }
