@@ -2,6 +2,7 @@ package com.psanja.tallinntransport;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import androidx.annotation.NonNull;
@@ -12,12 +13,15 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import android.util.SparseArray;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
-import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.android.volley.Request;
@@ -36,27 +40,33 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.psanja.tallinntransport.DATAclasses.Stop;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener {
 
+
+    InputMethodManager imm;
     RequestQueue queue;
 
     StopsManager stopsManager;
     private SwipeRefreshLayout refresh;
+    private EditText search;
     private DeparturesAdapter mainAdapter;
+    private SparseArray<ArrayList<Stop>> dataBackup = new SparseArray<>();
 
-    private FrameLayout mapview;
+    private LinearLayout mapview;
     private GoogleMap mMap;
     private FusedLocationProviderClient mFusedLocationClient;
     private MapManager mapManager;
 
-    private EditText searchname;
+    private int currentsate = R.id.navigation_timetable;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,6 +80,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         }
 
         queue = Volley.newRequestQueue(this);
+        imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
 
         refresh = findViewById(R.id.refresh);
         refresh.setColorScheme(R.color.buslight, R.color.tramlight, R.color.trolleylight);
@@ -98,12 +109,13 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                 googleMap.getUiSettings().setMyLocationButtonEnabled(true);
                 googleMap.getUiSettings().setCompassEnabled(false);
                 googleMap.getUiSettings().setTiltGesturesEnabled(false);
-                mapManager = new MapManager(getApplicationContext(), googleMap, queue);
+                TextView error = findViewById(R.id.maperror);
+                mapManager = new MapManager(getApplicationContext(), googleMap, error, queue);
             }
         });
 
-        searchname = findViewById(R.id.search_name);
-        searchname.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+        search = findViewById(R.id.search_name);
+        search.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_DONE && v.getText() != null) {
@@ -117,23 +129,40 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         navigation.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                int state = item.getItemId();
+
+                if (state == currentsate)
+                    return false;
+                ///replace clear
+                //add function tryload, which stores current state and tries to retrieve old state and then just clears if none is available
+                setRefresh(false);
                 refresh.setVisibility(View.GONE);
                 mapview.setVisibility(View.GONE);
-                searchname.setVisibility(View.GONE);
-                switch (item.getItemId()) {
-                    case R.id.navigation_search:
-                        searchname.setVisibility(View.VISIBLE);
-                    case R.id.navigation_timetable:
-                        setRefresh(false);
-                        refresh.setVisibility(View.VISIBLE);
-                        mapManager.stop();
-                        return true;
-                    case R.id.navigation_map:
+                search.setVisibility(View.GONE);
+                if (currentsate != R.id.navigation_map) {
+                    dataBackup.put(currentsate, mainAdapter.backup());
+                }
+                mainAdapter.clear();
+
+                if (state == R.id.navigation_search) {
+                    search.setVisibility(View.VISIBLE);
+                    search.requestFocus();
+                    imm.showSoftInput(search, InputMethodManager.SHOW_IMPLICIT);
+                } else {
+                    imm.hideSoftInputFromWindow(search.getWindowToken(), InputMethodManager.HIDE_IMPLICIT_ONLY);
+                    search.clearFocus();
+                    if (state == R.id.navigation_map) {
                         mapview.setVisibility(View.VISIBLE);
                         mapManager.start();
-                        return true;
+                    }
                 }
-                return false;
+                if (state != R.id.navigation_map) {
+                    refresh.setVisibility(View.VISIBLE);
+                    mapManager.stop();
+                    mainAdapter.tryRestore(dataBackup.get(state));
+                }
+                currentsate = state;
+                return true;
             }
         });
 
@@ -143,7 +172,6 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     @Override
     public void onRefresh() {
         setRefresh(true);
-        mainAdapter.clear();
         getNearestStops();
     }
 

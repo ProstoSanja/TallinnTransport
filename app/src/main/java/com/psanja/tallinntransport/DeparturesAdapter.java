@@ -15,7 +15,7 @@ import java.util.ArrayList;
 
 public class DeparturesAdapter extends RecyclerView.Adapter<DeparturesAdapter.ViewHolder> {
 
-    private ArrayList<Stop> dataset = new ArrayList<Stop>();
+    private ArrayList<Stop> dataset = new ArrayList<>();
 
     private Context context;
 
@@ -54,6 +54,16 @@ public class DeparturesAdapter extends RecyclerView.Adapter<DeparturesAdapter.Vi
     }
     void clear() {
         dataset.clear();
+        notifyDataSetChanged();
+    }
+
+    ArrayList<Stop> backup() {
+        return (ArrayList<Stop>) dataset.clone();
+    }
+    void tryRestore(ArrayList<Stop> data) {
+        if (data == null)
+            return;
+        dataset = data;
         notifyDataSetChanged();
     }
 

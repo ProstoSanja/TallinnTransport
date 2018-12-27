@@ -7,6 +7,9 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
+import android.view.View;
+import android.widget.TextView;
+
 import androidx.core.content.ContextCompat;
 
 import com.android.volley.Request;
@@ -30,10 +33,12 @@ class MapManager {
     private Context context;
     private RequestQueue queue;
     private boolean running;
+    private TextView error;
 
-    MapManager(Context context, GoogleMap googleMap, RequestQueue queue) {
+    MapManager(Context context, GoogleMap googleMap, TextView error, RequestQueue queue) {
         this.context = context;
         this.googleMap = googleMap;
+        this.error = error;
         this.queue = queue;
     }
 
@@ -49,6 +54,7 @@ class MapManager {
             mHandler.removeCallbacks(mHandlerUpdate);
             running = false;
         }
+        error.setVisibility(View.GONE);
     }
 
     private final Runnable mHandlerUpdate = new Runnable() {
@@ -59,9 +65,14 @@ class MapManager {
                     new Response.Listener<String>() {
                         @Override
                         public void onResponse(String response) {
-                            for (String unparsedvehicle : response.split(System.getProperty("line.separator"))) {
-                                //VehicleManager.ShortVehicle vehicle = vehicleManager.setVehicle(unparsedvehicle);
-                                setVehicle(unparsedvehicle);
+                            if (response.isEmpty()) {
+                                error.setVisibility(View.VISIBLE);
+                            } else {
+                                error.setVisibility(View.GONE);
+                                for (String unparsedvehicle : response.split(System.getProperty("line.separator"))) {
+                                    //VehicleManager.ShortVehicle vehicle = vehicleManager.setVehicle(unparsedvehicle);
+                                    setVehicle(unparsedvehicle);
+                                }
                             }
                         }
                     }, null);
