@@ -7,14 +7,19 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
 import androidx.core.content.ContextCompat;
 
+import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.JsonRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptor;
@@ -22,6 +27,8 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+
+import org.json.JSONObject;
 
 import java.util.Objects;
 
@@ -33,12 +40,12 @@ class MapManager {
     private Context context;
     private RequestQueue queue;
     private boolean running;
-    private TextView error;
+    private StatusManager statusManager;
 
-    MapManager(Context context, GoogleMap googleMap, TextView error, RequestQueue queue) {
+    MapManager(Context context, GoogleMap googleMap, StatusManager statusManager, RequestQueue queue) {
         this.context = context;
         this.googleMap = googleMap;
-        this.error = error;
+        this.statusManager = statusManager;
         this.queue = queue;
     }
 
@@ -54,45 +61,71 @@ class MapManager {
             mHandler.removeCallbacks(mHandlerUpdate);
             running = false;
         }
-        error.setVisibility(View.GONE);
     }
 
     private final Runnable mHandlerUpdate = new Runnable() {
         public void run() {
-            String url = "https://transport.tallinn.ee/gps.txt?";
+            Log.w("DEBUG", "MAP UPDATE");
 
-            StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+            StringRequest stringRequest = new StringRequest(Request.Method.GET, "https://transport.tallinn.ee/gps.txt?",
                     new Response.Listener<String>() {
                         @Override
                         public void onResponse(String response) {
                             if (response.isEmpty()) {
-                                error.setVisibility(View.VISIBLE);
+                                statusManager.reportMap(false);
                             } else {
-                                error.setVisibility(View.GONE);
+                                statusManager.reportMap(true);
                                 for (String unparsedvehicle : response.split(System.getProperty("line.separator"))) {
                                     //VehicleManager.ShortVehicle vehicle = vehicleManager.setVehicle(unparsedvehicle);
-                                    setVehicle(unparsedvehicle);
+                                    setVehicle(new Vehicle(unparsedvehicle));
                                 }
                             }
                         }
-                    }, null);
+                    },
+                    new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError e) {
+                            statusManager.reportMap(false);
+                        }
+                    });
             queue.add(stringRequest);
+            //DownloadElron();
             mHandler.postDelayed(mHandlerUpdate, 10000);
         }
     };
 
-    private void setVehicle(String unparsed) {
-        Vehicle newvehicle = new Vehicle(unparsed);
-        if (Objects.equals(newvehicle.number, "0")) {
+    private void setVehicle(Vehicle vehicle) {
+        if (Objects.equals(vehicle.number, "0")) {
             return;
         }
-        if (availablevehicles[newvehicle.id] == null) {
-            newvehicle.createMarker();
-            availablevehicles[newvehicle.id] = newvehicle;
-        } else if (newvehicle != availablevehicles[newvehicle.id]) {
-            availablevehicles[newvehicle.id].updateMarker(newvehicle.latitude, newvehicle.longtitude, newvehicle.rotation);
+        if (availablevehicles[vehicle.id] == null) {
+            vehicle.createMarker();
+            availablevehicles[vehicle.id] = vehicle;
+        } else if (vehicle != availablevehicles[vehicle.id]) {
+            availablevehicles[vehicle.id].updateMarker(vehicle.latitude, vehicle.longtitude, vehicle.rotation);
         }
     }
+
+    private void DownloadElron() {
+        JsonObjectRequest elronRequest = new JsonObjectRequest(Request.Method.GET, "url",null,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        statusManager.reportTrain(true);
+
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        statusManager.reportTrain(false);
+                    }
+            });
+        queue.add(elronRequest);
+    }
+
+
+
 
 
     public class Vehicle {

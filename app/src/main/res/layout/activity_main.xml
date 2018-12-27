@@ -7,6 +7,18 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
+    <TextView
+        android:id="@+id/maperror"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/darkred"
+        android:textAlignment="center"
+        android:textColor="@color/white"
+        android:textSize="16sp"
+        android:paddingVertical="5sp"
+        android:text="@string/big_error"
+        android:visibility="gone"/>
+
     <EditText
         android:id="@+id/search_name"
         android:layout_width="match_parent"
@@ -34,34 +46,21 @@
 
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
-    <LinearLayout
+    <FrameLayout
         android:id="@+id/mapholder"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:visibility="gone"
-        android:orientation="vertical">
-
-        <TextView
-            android:id="@+id/maperror"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/colorPrimaryDark"
-            android:textAlignment="center"
-            android:textColor="@color/white"
-            android:textSize="16sp"
-            android:paddingVertical="5sp"
-            android:text="@string/error"/>
+        android:visibility="gone">
 
         <fragment
             xmlns:map="http://schemas.android.com/apk/res-auto"
             android:id="@+id/map"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
+            android:layout_height="match_parent"
             android:name="com.google.android.gms.maps.SupportMapFragment" />
 
-    </LinearLayout>
+    </FrameLayout>
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/navigation"

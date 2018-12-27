@@ -21,6 +21,7 @@ import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -61,18 +62,20 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     private DeparturesAdapter mainAdapter;
     private SparseArray<ArrayList<Stop>> dataBackup = new SparseArray<>();
 
-    private LinearLayout mapview;
+    private FrameLayout mapview;
     private GoogleMap mMap;
     private FusedLocationProviderClient mFusedLocationClient;
     private MapManager mapManager;
 
     private int currentsate = R.id.navigation_timetable;
+    private StatusManager statusManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //TODO: stop mapmanager on pause/stop
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
             finish();
@@ -80,6 +83,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         }
 
         queue = Volley.newRequestQueue(this);
+        statusManager = new StatusManager(getApplicationContext(), (TextView) findViewById(R.id.maperror));
         imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
 
         refresh = findViewById(R.id.refresh);
@@ -89,9 +93,9 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
         RecyclerView recyclerView = findViewById(R.id.recycler_holder);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        mainAdapter = new DeparturesAdapter(getApplicationContext());
+        mainAdapter = new DeparturesAdapter(getApplicationContext(), statusManager);
         recyclerView.setAdapter(mainAdapter);
-        stopsManager = new StopsManager(queue);
+        stopsManager = new StopsManager(getApplicationContext(), queue, statusManager);
 
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         mapview = findViewById(R.id.mapholder);
@@ -109,8 +113,8 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                 googleMap.getUiSettings().setMyLocationButtonEnabled(true);
                 googleMap.getUiSettings().setCompassEnabled(false);
                 googleMap.getUiSettings().setTiltGesturesEnabled(false);
-                TextView error = findViewById(R.id.maperror);
-                mapManager = new MapManager(getApplicationContext(), googleMap, error, queue);
+                mapManager = new MapManager(getApplicationContext(), googleMap, statusManager, queue);
+                mapManager.start();
             }
         });
 
@@ -133,8 +137,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
                 if (state == currentsate)
                     return false;
-                ///replace clear
-                //add function tryload, which stores current state and tries to retrieve old state and then just clears if none is available
+
                 setRefresh(false);
                 refresh.setVisibility(View.GONE);
                 mapview.setVisibility(View.GONE);
@@ -142,7 +145,10 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                 if (currentsate != R.id.navigation_map) {
                     dataBackup.put(currentsate, mainAdapter.backup());
                 }
-                mainAdapter.clear();
+                if (state != R.id.navigation_map) {
+                    mainAdapter.tryRestore(dataBackup.get(state));
+                    refresh.setVisibility(View.VISIBLE);
+                }
 
                 if (state == R.id.navigation_search) {
                     search.setVisibility(View.VISIBLE);
@@ -153,61 +159,31 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                     search.clearFocus();
                     if (state == R.id.navigation_map) {
                         mapview.setVisibility(View.VISIBLE);
-                        mapManager.start();
                     }
                 }
-                if (state != R.id.navigation_map) {
-                    refresh.setVisibility(View.VISIBLE);
-                    mapManager.stop();
-                    mainAdapter.tryRestore(dataBackup.get(state));
-                }
+
                 currentsate = state;
                 return true;
             }
         });
 
-        LoadStops();
+        getNearestStops();
     }
 
     @Override
     public void onRefresh() {
         setRefresh(true);
-        getNearestStops();
+        if (currentsate == R.id.navigation_timetable) {
+            getNearestStops();
+        } else if (currentsate == R.id.navigation_search) {
+            search.onEditorAction(EditorInfo.IME_ACTION_DONE);
+        } else {
+            setRefresh(false);
+        }
     }
 
     public void setRefresh(boolean type) {
         refresh.setRefreshing(type);
-    }
-
-    private void LoadStops() {
-        String url ="https://transport.tallinn.ee/data/stops.txt";
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
-            new Response.Listener<String>() {
-                @Override
-                public void onResponse(String response) {
-                    ProcessStops(response);
-                }
-            }, new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    error.printStackTrace();
-                }
-            });
-        queue.add(stringRequest);
-
-    }
-
-    private void ProcessStops(String response) {
-        try {
-            String preprocess = new String(response.getBytes("ISO-8859-1"), "UTF-8");
-            String[] rawstops = preprocess.split("\n");
-            for (String rawstop: rawstops) {
-                stopsManager.add(rawstop.split(";"));
-            }
-            getNearestStops();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     @SuppressLint("MissingPermission")
@@ -227,7 +203,8 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                             }, new Response.ErrorListener() {
                         @Override
                         public void onErrorResponse(VolleyError error) {
-                            error.printStackTrace();
+                            statusManager.reportBus(false);
+                            setRefresh(false);
                         }
                     });
                     queue.add(jsObjRequest);
@@ -261,6 +238,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     private void SearchStops(String stop) {
         mainAdapter.clear();
         stopsManager.get(stop, 100, mainAdapter);
+        setRefresh(false);
     }
 
 }

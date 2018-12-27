@@ -20,5 +20,6 @@
     <color name="light_light_light_grey">#FBFBFB</color>
 
     <color name="darkred">#C02B1E</color>
+    <color name="darkyellow">#CCB634</color>
     <color name="darkgreen">#0FAD03</color>
 </resources>

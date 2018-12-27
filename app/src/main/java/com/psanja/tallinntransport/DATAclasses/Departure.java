@@ -8,8 +8,6 @@ public class Departure {
     public Boolean delay = false;
     public Integer arrivingseconds;
 
-
-    public static final int ERROR = 1;
     public static final int NODEPARTURE = 2;
     public static final int NOTFOUND = 3;
 
@@ -32,11 +30,6 @@ public class Departure {
         delay = true;
         destination = "";
         switch (action) {
-            case ERROR:
-                type = "error";
-                number = "Tallinn government server reported error";
-                arriving = "";
-                break;
             case NODEPARTURE:
                 type = "none";
                 number = "No Departures";

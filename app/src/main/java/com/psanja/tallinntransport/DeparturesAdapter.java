@@ -15,6 +15,7 @@ import java.util.ArrayList;
 
 public class DeparturesAdapter extends RecyclerView.Adapter<DeparturesAdapter.ViewHolder> {
 
+    private StatusManager statusManager;
     private ArrayList<Stop> dataset = new ArrayList<>();
 
     private Context context;
@@ -39,8 +40,9 @@ public class DeparturesAdapter extends RecyclerView.Adapter<DeparturesAdapter.Vi
     }
 
     // Provide a suitable constructor (depends on the kind of dataset)
-    DeparturesAdapter(Context context) {
+    DeparturesAdapter(Context context, StatusManager statusManager) {
         this.context = context;
+        this.statusManager = statusManager;
     }
 
     Integer add(Stop stop) {
@@ -61,10 +63,12 @@ public class DeparturesAdapter extends RecyclerView.Adapter<DeparturesAdapter.Vi
         return (ArrayList<Stop>) dataset.clone();
     }
     void tryRestore(ArrayList<Stop> data) {
-        if (data == null)
-            return;
-        dataset = data;
-        notifyDataSetChanged();
+        if (data == null) {
+            dataset.clear();
+        } else {
+            dataset = data;
+            notifyDataSetChanged();
+        }
     }
 
     // Create new views (invoked by the layout manager)
@@ -117,10 +121,12 @@ public class DeparturesAdapter extends RecyclerView.Adapter<DeparturesAdapter.Vi
                     holder.departureBlock.setText(newdata.number);
                     holder.departureDestination.setText(newdata.destination);
                     holder.departureTime.setText(newdata.arriving);
-                    if (newdata.delay) {
+                    if (!statusManager.getStatus()) {
+                        holder.departureTime.setTextColor(context.getColor(R.color.grey));
+                    } else if (newdata.delay) {
                         holder.departureTime.setTextColor(context.getColor(R.color.darkred));
                     } else {
-                        holder.departureTime.setTextColor(context.getColor(R.color.grey));
+                        holder.departureTime.setTextColor(context.getColor(R.color.darkgreen));
                     }
                     holder.departureItem.setVisibility(View.VISIBLE);
                     break;
