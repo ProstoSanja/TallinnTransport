@@ -5,6 +5,8 @@
     <string name="navigation_map">Live map</string>
     <string name="navigation_search">Search</string>
 
+    <string name="error">Server not responding</string>
+
     <string name="search_hint">Stop name</string>
 
     <string name="google_maps_key">AIzaSyDbzS8CBF-mAMWY7z-CE_QXC0JYvVy65V0</string>
