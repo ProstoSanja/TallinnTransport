@@ -9,8 +9,34 @@
         ]
     },
     {
+        "featureType": "landscape.man_made",
+        "stylers": [
+            {
+                "visibility": "off"
+            }
+        ]
+    },
+    {
         "featureType": "poi",
         "elementType": "labels",
+        "stylers": [
+            {
+                "visibility": "off"
+            }
+        ]
+    },
+    {
+        "featureType": "road.highway",
+        "elementType": "geometry.fill",
+        "stylers": [
+            {
+                "color": "#c4c4c4"
+            }
+        ]
+    },
+    {
+        "featureType": "road.highway",
+        "elementType": "geometry.stroke",
         "stylers": [
             {
                 "visibility": "off"

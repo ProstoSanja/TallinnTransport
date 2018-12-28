@@ -8,7 +8,7 @@ public class Departure {
     public Boolean delay = false;
     public Integer arrivingseconds;
 
-    public Departure(String raw) {
+    Departure(String raw) {
         String[] formatted = raw.split(",");
         if (formatted.length >= 5) {
             type = formatted[0];
@@ -23,10 +23,27 @@ public class Departure {
         }
     }
 
+    Departure(String line, String time) {
+        type = "train";
+        number = "ELR";
+        //TODO: MAYBE: maybe check if time has passed before, because they dont put done mark sometimes
+        //TODO: SURE: also check if time has passed but we are still here, then it is delayed, so we add check mark
+        arrivingseconds = convertSeconds(time);
+        arriving = time;
+        destination = line.split("-")[1].trim();
+    }
+
     @SuppressLint("DefaultLocale")
     private String convertTime(Integer temptime) {
         Integer hours = temptime / 3600;
         Integer minutes = (temptime % 3600) / 60;
         return String.format("%02d:%02d", hours, minutes);
+    }
+
+    private Integer convertSeconds(String time) {
+        String[] times = time.split(":");
+        Integer result = Integer.valueOf(times[0])*3600;
+        result += Integer.valueOf(times[1])*60;
+        return result;
     }
 }

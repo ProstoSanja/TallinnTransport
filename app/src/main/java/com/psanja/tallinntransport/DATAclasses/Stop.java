@@ -1,5 +1,8 @@
 package com.psanja.tallinntransport.DATAclasses;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -19,6 +22,7 @@ public class Stop {
         this.status = status;
     }
 
+    //TLT
     public void addData(String data) {
         String[] responses = data.split("\n");
         responses[0] = null;
@@ -27,6 +31,25 @@ public class Stop {
                 departures.add(new Departure(departure));
             }
         }
+        CheckSort();
+    }
+
+    //ELR
+    public void addData(JSONArray data) {
+        try {
+            for (int i = 0; i < data.length(); i++) {
+                JSONObject dep = data.getJSONObject(i);
+                if (dep.getString("tegelik_aeg").isEmpty()) {
+                    departures.add(new Departure(dep.getString("liin"), dep.getString("plaaniline_aeg")));
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        CheckSort();
+    }
+
+    private void CheckSort() {
         if (departures.size() > 0) {
             status = null;
             Collections.sort(departures, new Comparator<Departure>() {

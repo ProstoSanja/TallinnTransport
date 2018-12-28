@@ -111,13 +111,9 @@ public class DeparturesAdapter extends RecyclerView.Adapter<DeparturesAdapter.Vi
                             holder.departureBlock.setCompoundDrawablesWithIntrinsicBounds(context.getDrawable(R.drawable.ic_bus), null, null, null);
                             holder.departureBlock.setBackgroundColor(context.getColor(R.color.trolleylight));
                             break;
-                        case "none":
-                            holder.departureBlock.setCompoundDrawablesWithIntrinsicBounds(null, null, null, null);
-                            holder.departureBlock.setBackgroundColor(context.getColor(R.color.black));
-                            break;
-                        case "error":
-                            holder.departureBlock.setCompoundDrawablesWithIntrinsicBounds(null, null, null, null);
-                            holder.departureBlock.setBackgroundColor(context.getColor(R.color.darkred));
+                        case "train":
+                            holder.departureBlock.setCompoundDrawablesWithIntrinsicBounds(context.getDrawable(R.drawable.ic_train), null, null, null);
+                            holder.departureBlock.setBackgroundColor(context.getColor(R.color.trainlight));
                             break;
                     }
                     holder.departureBlock.setText(newdata.number);

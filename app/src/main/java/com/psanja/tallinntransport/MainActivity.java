@@ -111,6 +111,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                 googleMap.setMyLocationEnabled(true);
                 googleMap.getUiSettings().setRotateGesturesEnabled(false);
                 googleMap.getUiSettings().setMyLocationButtonEnabled(true);
+                googleMap.getUiSettings().setMapToolbarEnabled(false);
                 googleMap.getUiSettings().setCompassEnabled(false);
                 googleMap.getUiSettings().setTiltGesturesEnabled(false);
                 mapManager = new MapManager(getApplicationContext(), googleMap, statusManager, queue);
@@ -129,6 +130,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
             }
         });
 
+        //TODO: implement search SOMEWHERE
         BottomNavigationView navigation = findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override

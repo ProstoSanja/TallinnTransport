@@ -161,15 +161,35 @@ class StopsManager {
     }
 
     void get(final String name, Integer limit, final DeparturesAdapter departuresAdapter) {
-        Log.w("DEBUG", name);
         String[] siriids = stoplist.get(name.toLowerCase());
         if (siriids != null) {
             final Stop stop = new Stop(name, limit);
             departuresAdapter.add(stop);
             //potentially store return position and use set to update
             if (Arrays.asList(siriids).contains("-1")) {
-                //potentially clean -1
-                //elron logic
+                //TODO: pass data about double loading to stop, so no false "no departures"
+                //TODO: potentially clean -1
+                //TODO: if minus one is the only one, then pass info about one load ..   simple enough... var will be named sources
+                JsonObjectRequest elronRequest = new JsonObjectRequest(Request.Method.GET, "https://elron.ee/api/v1/stop?stop="+name, null,
+                        new Response.Listener<JSONObject>() {
+                            @Override
+                            public void onResponse(JSONObject response) {
+                                statusManager.reportTrain(true);
+                                try {
+                                    stop.addData(response.getJSONArray("data"));
+                                    departuresAdapter.notifyDataSetChanged();
+                                } catch (Exception e) {
+                                    statusManager.reportTrain(false);
+                                }
+                            }
+                        },
+                        new Response.ErrorListener() {
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+                                statusManager.reportTrain(false);
+                            }
+                        });
+                queue.add(elronRequest);
             }
             //final ResponseCombiner responseCombiner = new ResponseCombiner(siriids.length, name, limit, departuresAdapter);
             String url = "https://transport.tallinn.ee/siri-stop-departures.php?stopid=" + TextUtils.join(",", siriids);
