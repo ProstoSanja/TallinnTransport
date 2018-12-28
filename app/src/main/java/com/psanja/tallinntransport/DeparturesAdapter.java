@@ -26,12 +26,13 @@ public class DeparturesAdapter extends RecyclerView.Adapter<DeparturesAdapter.Vi
     static class ViewHolder extends RecyclerView.ViewHolder {
         // each data item is just a string in this case
         LinearLayout holderItem, stopItem, departureItem;
-        TextView stopName, departureBlock, departureDestination, departureTime;
+        TextView stopName, stopStatus, departureBlock, departureDestination, departureTime;
         ViewHolder(LinearLayout ll) {
             super(ll);
             holderItem = ll;
             stopItem = ll.findViewById(R.id.stop_holder);
             stopName = ll.findViewById(R.id.stop_name);
+            stopStatus = ll.findViewById(R.id.stop_status);
             departureItem = ll.findViewById(R.id.departure_holder);
             departureBlock = ll.findViewById(R.id.departure_block);
             departureDestination = ll.findViewById(R.id.departure_destination);
@@ -89,6 +90,7 @@ public class DeparturesAdapter extends RecyclerView.Adapter<DeparturesAdapter.Vi
             if (position == 0) {
                 holder.departureItem.setVisibility(View.GONE);
                 holder.stopName.setText(thisstop.name);
+                holder.stopStatus.setText(thisstop.status);
                 holder.stopItem.setVisibility(View.VISIBLE);
                 break;
             } else {

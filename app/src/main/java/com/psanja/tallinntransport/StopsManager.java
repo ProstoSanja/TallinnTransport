@@ -1,20 +1,27 @@
 package com.psanja.tallinntransport;
 
 import android.content.Context;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.psanja.tallinntransport.DATAclasses.Departure;
 import com.psanja.tallinntransport.DATAclasses.Stop;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -45,97 +52,149 @@ class StopsManager {
             stoplist = (Map<String, String[]>) ss.readObject();
             ss.close();
             //delay it or dont run at all if not needed
-            DownloadStops();
+            new stopSetup(null);
         } catch (Exception e) {
-            DownloadStops();
+            new stopSetup(null);
         }
     }
 
-    private void DownloadStops() {
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, "https://transport.tallinn.ee/data/stops.txt",
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        try {
-                            Map<String, String[]> newstoplist = new HashMap<>();
-                            String preprocess = new String(response.getBytes("ISO-8859-1"), "UTF-8");
-                            String[] rawstops = preprocess.split("\n");
-                            for (String rawstop: rawstops) {
-                                addBus(rawstop.split(";"), newstoplist);
-                            }
+    public class stopSetup {
+
+        Map<String, String[]> newstoplist = new HashMap<>();
+
+        stopSetup(Void callback) {
+            DownloadStopsTLL();
+        }
+
+        private void DownloadStopsTLL() {
+            StringRequest stringRequest = new StringRequest(Request.Method.GET, "https://transport.tallinn.ee/data/stops.txt",
+                    new Response.Listener<String>() {
+                        @Override
+                        public void onResponse(String response) {
+                            String preprocess = null;
                             try {
-                                context.deleteFile("stops");
-                            } catch (Exception e) {
+                                preprocess = new String(response.getBytes("ISO-8859-1"), "UTF-8");
+                            } catch (UnsupportedEncodingException e) {
                                 e.printStackTrace();
                             }
-                            FileOutputStream f = context.openFileOutput("stops", Context.MODE_PRIVATE);
-                            ObjectOutputStream s = new ObjectOutputStream(f);
-                            s.writeObject(newstoplist);
-                            s.close();
-                            stoplist = newstoplist;
-                        } catch (Exception e) {
+                            String[] rawstops = preprocess.split("\n");
+                            for (String rawstop : rawstops) {
+                                addBus(rawstop.split(";"));
+                            }
+                            DownloadStopsELR();
+                        }
+                    },
+                    new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
                             statusManager.reportBus(false);
                         }
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        statusManager.reportBus(false);
-                    }
-                });
-        queue.add(stringRequest);
-    }
+                    });
+            queue.add(stringRequest);
+        }
 
+        private void DownloadStopsELR() {
+            JsonObjectRequest elronRequest = new JsonObjectRequest(Request.Method.GET, "https://elron.ee/api/v1/stops", null,
+                    new Response.Listener<JSONObject>() {
+                        @Override
+                        public void onResponse(JSONObject response) {
+                            statusManager.reportTrain(true);
+                            try {
+                                JSONArray stops = response.getJSONArray("data");
+                                for (int i = 0; i < stops.length(); i++) {
+                                    String stop = stops.getJSONObject(i).getString("peatus").toLowerCase();
+                                    String[] tryget = newstoplist.get(stop);
+                                    if (tryget != null) {
+                                        List<String> newids = new ArrayList<>(Arrays.asList(tryget));
+                                        newids.add("-1");
+                                        newstoplist.put(stop, newids.toArray(new String[0]));
+                                    } else {
+                                        newstoplist.put(stop, new String[]{"-1"});
+                                    }
+                                }
+                            } catch (Exception e) {
+                                statusManager.reportTrain(false);
+                            }
+                            writeStops();
+                        }
+                    },
+                    new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            statusManager.reportTrain(false);
+                        }
+                    });
+            queue.add(elronRequest);
+        }
 
-
-    //this script is actually pretty reasonable, considering how much shit they have in thier source file
-    private String currentName;
-    private List<String> currentSiriIDs;
-
-    void addBus(String[] data, Map<String, String[]> list) {
-        if (data.length > 5) {
-            if (currentName != null) {
-                list.put(currentName, currentSiriIDs.toArray(new String[0]));
-            }
-            currentName = data[5].toLowerCase();
-            String[] tryget = list.get(currentName);
-            currentSiriIDs = new ArrayList<>();
-            if (tryget != null) {
-                currentSiriIDs.addAll(Arrays.asList(tryget));
+        private void writeStops() {
+            try {
+                FileOutputStream f = context.openFileOutput("stops", Context.MODE_PRIVATE);
+                ObjectOutputStream s = new ObjectOutputStream(f);
+                s.writeObject(newstoplist);
+                s.close();
+                stoplist = newstoplist;
+            } catch (Exception e) {
+                statusManager.reportBus(false);
             }
         }
-        currentSiriIDs.add(data[1]);
+
+        //this script is actually pretty reasonable, considering how much shit they have in thier source file
+        private String currentName;
+        private List<String> currentSiriIDs;
+
+        void addBus(String[] data) {
+            if (data.length > 5) {
+                if (currentName != null) {
+                    newstoplist.put(currentName, currentSiriIDs.toArray(new String[0]));
+                }
+                currentName = data[5].toLowerCase();
+                String[] tryget = newstoplist.get(currentName);
+                currentSiriIDs = new ArrayList<>();
+                if (tryget != null) {
+                    currentSiriIDs.addAll(Arrays.asList(tryget));
+                }
+            }
+            currentSiriIDs.add(data[1]);
+        }
+
     }
 
-    void get(String name, Integer limit, DeparturesAdapter departuresAdapter) {
+    void get(final String name, Integer limit, final DeparturesAdapter departuresAdapter) {
+        Log.w("DEBUG", name);
         String[] siriids = stoplist.get(name.toLowerCase());
         if (siriids != null) {
-            final ResponseCombiner responseCombiner = new ResponseCombiner(siriids.length, name, limit, departuresAdapter);
-            for (String stop : siriids) {
-                String url = "https://transport.tallinn.ee/siri-stop-departures.php?stopid=" + stop;
-                StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
-                        new Response.Listener<String>() {
-                            @Override
-                            public void onResponse(String response) {
-                                responseCombiner.process(response);
-                            }
-                        }, new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        error.printStackTrace();
-                        statusManager.reportBus(false);
-                    }
-                });
-                queue.add(stringRequest);
-            }
-        } else {
-            Stop stop = new Stop(name);
-            stop.departures.add(new Departure(Departure.NOTFOUND));
+            final Stop stop = new Stop(name, limit);
             departuresAdapter.add(stop);
+            //potentially store return position and use set to update
+            if (Arrays.asList(siriids).contains("-1")) {
+                //potentially clean -1
+                //elron logic
+            }
+            //final ResponseCombiner responseCombiner = new ResponseCombiner(siriids.length, name, limit, departuresAdapter);
+            String url = "https://transport.tallinn.ee/siri-stop-departures.php?stopid=" + TextUtils.join(",", siriids);
+            StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+                    new Response.Listener<String>() {
+                        @Override
+                        public void onResponse(String response) {
+                            stop.addData(response);
+                            departuresAdapter.notifyDataSetChanged();
+                            //potentially update stop
+                        }
+                    },
+                    new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            departuresAdapter.add(new Stop(name, "Connection Error"));
+                            statusManager.reportBus(false);
+                        }
+                    });
+            queue.add(stringRequest);
+        } else {
+            departuresAdapter.add(new Stop(name, "Not TLT or Elron stop"));
         }
     }
-
+/*
     private class ResponseCombiner {
 
         Integer required;
@@ -193,5 +252,5 @@ class StopsManager {
             }
         }
     }
-
+*/
 }

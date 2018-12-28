@@ -8,9 +8,6 @@ public class Departure {
     public Boolean delay = false;
     public Integer arrivingseconds;
 
-    public static final int NODEPARTURE = 2;
-    public static final int NOTFOUND = 3;
-
     public Departure(String raw) {
         String[] formatted = raw.split(",");
         if (formatted.length >= 5) {
@@ -23,23 +20,6 @@ public class Departure {
                 delay = true;
             }
             destination = formatted[4];
-        }
-    }
-
-    public Departure (Integer action) {
-        delay = true;
-        destination = "";
-        switch (action) {
-            case NODEPARTURE:
-                type = "none";
-                number = "No Departures";
-                arriving = "--:--";
-                break;
-            case NOTFOUND:
-                type = "none";
-                number = "Stop not found";
-                arriving = "";
-                break;
         }
     }
 
