@@ -11,6 +11,8 @@
     <color name="tramlight">#f7992d</color>
     <color name="trolleydark">#2A76CC</color>
     <color name="trolleylight">#2F84E3</color>
+    <color name="traindark">#DB3C30</color>
+    <color name="trainlight">#F44336</color>
 
     <color name="white">#FFFFFF</color>
     <color name="black">#000000</color>

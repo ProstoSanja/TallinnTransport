@@ -17,7 +17,9 @@ class StatusManager {
     }
 
     private void analyze() {
-        Log.w("DEBUG", String.valueOf(busstatus) + String.valueOf(mapstatus));
+        Log.w("DEBUG", String.valueOf(busstatus));
+        Log.w("DEBUG", String.valueOf(mapstatus));
+        Log.w("DEBUG", String.valueOf(trainstatus));
         if (busstatus && mapstatus && trainstatus) {
             statusfield.setVisibility(View.GONE);
         } else if (busstatus && trainstatus) {

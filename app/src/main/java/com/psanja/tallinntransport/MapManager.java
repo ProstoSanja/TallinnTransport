@@ -28,6 +28,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.Objects;
@@ -35,7 +36,7 @@ import java.util.Objects;
 class MapManager {
 
     private final Handler mHandler = new Handler();
-    private Vehicle[] availablevehicles = new Vehicle[10000];
+    private Vehicle[] availablevehicles = new Vehicle[15000];
     private GoogleMap googleMap;
     private Context context;
     private RequestQueue queue;
@@ -67,7 +68,7 @@ class MapManager {
         public void run() {
             Log.w("DEBUG", "MAP UPDATE");
 
-            StringRequest stringRequest = new StringRequest(Request.Method.GET, "https://transport.tallinn.ee/gps.txt?",
+            StringRequest stringRequest = new StringRequest(Request.Method.GET, "https://transport.tallinn.ee/gps.txt",
                     new Response.Listener<String>() {
                         @Override
                         public void onResponse(String response) {
@@ -89,30 +90,26 @@ class MapManager {
                         }
                     });
             queue.add(stringRequest);
-            //DownloadElron();
+            DownloadElron();
             mHandler.postDelayed(mHandlerUpdate, 10000);
         }
     };
 
-    private void setVehicle(Vehicle vehicle) {
-        if (Objects.equals(vehicle.number, "0")) {
-            return;
-        }
-        if (availablevehicles[vehicle.id] == null) {
-            vehicle.createMarker();
-            availablevehicles[vehicle.id] = vehicle;
-        } else if (vehicle != availablevehicles[vehicle.id]) {
-            availablevehicles[vehicle.id].updateMarker(vehicle.latitude, vehicle.longtitude, vehicle.rotation);
-        }
-    }
-
     private void DownloadElron() {
-        JsonObjectRequest elronRequest = new JsonObjectRequest(Request.Method.GET, "url",null,
+        JsonObjectRequest elronRequest = new JsonObjectRequest(Request.Method.GET, "https://elron.ee/api/v1/map",null,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
                         statusManager.reportTrain(true);
+                        try {
+                            JSONArray trains = response.getJSONArray("data");
+                            for (int i=0; i < trains.length(); i++) {
+                                setVehicle(new Vehicle(trains.getJSONObject(i)));
 
+                            }
+                        } catch (Exception e) {
+                            statusManager.reportTrain(false);
+                        }
                     }
                 },
                 new Response.ErrorListener() {
@@ -124,7 +121,17 @@ class MapManager {
         queue.add(elronRequest);
     }
 
-
+    private void setVehicle(Vehicle vehicle) {
+        if (Objects.equals(vehicle.number, "0")) {
+            return;
+        }
+        if (availablevehicles[vehicle.id] == null) {
+            vehicle.createMarker();
+            availablevehicles[vehicle.id] = vehicle;
+        } else if (vehicle != availablevehicles[vehicle.id]) {
+            availablevehicles[vehicle.id].updateMarker(vehicle.latitude, vehicle.longitude, vehicle.rotation);
+        }
+    }
 
 
 
@@ -134,18 +141,37 @@ class MapManager {
         Integer type;
         Integer id;
         Double latitude;
-        Double longtitude;
+        Double longitude;
         Integer rotation;
         Marker marker;
+        String title;
+        String info;
 
         Vehicle(String unparsed) {
             String[] parsed = unparsed.split(",");
             this.id = Integer.valueOf(parsed[6]);
             this.type = Integer.valueOf(parsed[0]);
             this.number = parsed[1];
-            this.longtitude = Double.valueOf(parsed[2]) / 1000000;
+            this.longitude = Double.valueOf(parsed[2]) / 1000000;
             this.latitude = Double.valueOf(parsed[3]) / 1000000;
             this.rotation = Integer.valueOf(parsed[5]);
+        }
+
+        Vehicle(JSONObject unparsed) {
+            try {
+                this.id = 10000 + unparsed.getInt("reis");
+                this.type = 4;
+                this.number = unparsed.getString("reis");
+                this.longitude = unparsed.getDouble("longitude");
+                this.latitude = unparsed.getDouble("latitude");
+                this.rotation = unparsed.getInt("rongi_suund");
+                this.title = unparsed.getString("liin");
+                this.info = "Arrives: " + unparsed.getString("reisi_lopp_aeg");// + "\nSpeed: " + unparsed.getString("kiirus")+"km/h";
+            } catch (Exception e) {
+                e.printStackTrace();
+                statusManager.reportTrain(false);
+            }
+
         }
 
         void createMarker() {
@@ -163,15 +189,22 @@ class MapManager {
                     //tram
                     iconbase = R.drawable.ic_map_orange;
                     break;
+                case 4:
+                    //train
+                    iconbase = R.drawable.ic_map_red;
+                    break;
             }
 
             marker = googleMap.addMarker(new MarkerOptions()
                     .icon(generateIcon(iconbase, number))
-                    .position(new LatLng(latitude, longtitude))
+                    .position(new LatLng(latitude, longitude))
                     .flat(true)
                     .anchor(0.5f, 0.1f)
-                    .rotation(rotation)
-                    .title(number));
+                    .rotation(rotation));
+            if (title!=null)
+                marker.setTitle(title);
+            if (info!=null)
+                marker.setSnippet(info);
 
         }
 
