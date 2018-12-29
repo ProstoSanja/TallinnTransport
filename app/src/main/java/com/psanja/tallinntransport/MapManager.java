@@ -8,18 +8,14 @@ import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.util.Log;
-import android.view.View;
-import android.widget.TextView;
 
 import androidx.core.content.ContextCompat;
 
-import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.JsonRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptor;

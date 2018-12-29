@@ -4,6 +4,7 @@ package com.psanja.tallinntransport.DATAclasses;
 import android.annotation.SuppressLint;
 
 public class Departure {
+    public Boolean deleteMe = false;
     public String type, number, arriving, destination;
     public Boolean delay = false;
     public Integer arrivingseconds;
@@ -26,9 +27,15 @@ public class Departure {
     Departure(String line, String time) {
         type = "train";
         number = "ELR";
-        //TODO: MAYBE: maybe check if time has passed before, because they dont put done mark sometimes
-        //TODO: SURE: also check if time has passed but we are still here, then it is delayed, so we add check mark
         arrivingseconds = convertSeconds(time);
+        //TODO: THIS WILL LAST ONLY UNTIL SPRING DEAL WITH DST AND TIMEZONES
+        long delaydelt = (((System.currentTimeMillis()/1000)+7200)%86400) - arrivingseconds;
+        if (delaydelt > 600) { //delay 10 min
+            deleteMe = true;
+            return;
+        } else if (delaydelt > 30){
+            delay = true;
+        }
         arriving = time;
         destination = line.split("-")[1].trim();
     }

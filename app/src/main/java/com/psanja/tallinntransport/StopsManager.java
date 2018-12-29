@@ -2,7 +2,6 @@ package com.psanja.tallinntransport;
 
 import android.content.Context;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -10,7 +9,6 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
-import com.psanja.tallinntransport.DATAclasses.Departure;
 import com.psanja.tallinntransport.DATAclasses.Stop;
 
 import org.json.JSONArray;
@@ -21,7 +19,6 @@ import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -61,8 +58,10 @@ class StopsManager {
     public class stopSetup {
 
         Map<String, String[]> newstoplist = new HashMap<>();
+        Void callback;
 
         stopSetup(Void callback) {
+            this.callback = callback;
             DownloadStopsTLL();
         }
 
@@ -134,6 +133,7 @@ class StopsManager {
                 s.writeObject(newstoplist);
                 s.close();
                 stoplist = newstoplist;
+                //TODO: call callback if not null
             } catch (Exception e) {
                 statusManager.reportBus(false);
             }
@@ -165,7 +165,6 @@ class StopsManager {
         if (siriids != null) {
             final Stop stop = new Stop(name, limit);
             departuresAdapter.add(stop);
-            //potentially store return position and use set to update
             if (Arrays.asList(siriids).contains("-1")) {
                 //TODO: pass data about double loading to stop, so no false "no departures"
                 //TODO: potentially clean -1
@@ -213,6 +212,35 @@ class StopsManager {
         } else {
             departuresAdapter.add(new Stop(name, "Not TLT or Elron stop"));
         }
+    }
+
+
+    ArrayList<String> searchStop(String search) {
+        search = search.toLowerCase().trim();
+        ArrayList<String> response = new ArrayList<>();
+        for (String result: stoplist.keySet()) {
+            if (result.startsWith(search)) {
+                response.add(toUpperCase(result));
+            }
+        }
+        Collections.sort(response, new Comparator<String>() {
+            @Override
+            public int compare(String o1, String o2) {
+                return o1.length() - o2.length();
+            }
+        });
+        return response;
+    }
+
+    String toUpperCase(String value) {
+        if (value != null) {
+            if (value.length() > 1) {
+                return value.substring(0, 1).toUpperCase() + value.substring(1);
+            } else if (value.length() == 1) {
+                return value.toUpperCase();
+            }
+        }
+        return null;
     }
 /*
     private class ResponseCombiner {

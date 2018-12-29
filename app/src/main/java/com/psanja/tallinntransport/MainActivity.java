@@ -14,15 +14,18 @@ import android.os.Bundle;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.SparseArray;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.FrameLayout;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.android.volley.Request;
@@ -30,7 +33,6 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -58,7 +60,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
     StopsManager stopsManager;
     private SwipeRefreshLayout refresh;
-    private EditText search;
+    private AutoCompleteTextView search;
     private DeparturesAdapter mainAdapter;
     private SparseArray<ArrayList<Stop>> dataBackup = new SparseArray<>();
 
@@ -120,6 +122,35 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         });
 
         search = findViewById(R.id.search_name);
+        final ArrayAdapter<String> searchAdapter = new ArrayAdapter<> (this, android.R.layout.select_dialog_item, new ArrayList<String>());
+        search.setAdapter(searchAdapter);
+        search.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String query = s.toString();
+                searchAdapter.clear();
+                if (query.length() > 1) {
+                    searchAdapter.addAll(stopsManager.searchStop(query));
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+        search.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                SearchStops(((TextView)view).getText().toString().trim());
+                toggleKeyboard(false);
+            }
+        });
         search.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
@@ -129,8 +160,6 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                 return false;
             }
         });
-
-        //TODO: implement search SOMEWHERE
         BottomNavigationView navigation = findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
@@ -155,9 +184,9 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                 if (state == R.id.navigation_search) {
                     search.setVisibility(View.VISIBLE);
                     search.requestFocus();
-                    imm.showSoftInput(search, InputMethodManager.SHOW_IMPLICIT);
+                    toggleKeyboard(true);
                 } else {
-                    imm.hideSoftInputFromWindow(search.getWindowToken(), InputMethodManager.HIDE_IMPLICIT_ONLY);
+                    toggleKeyboard(false);
                     search.clearFocus();
                     if (state == R.id.navigation_map) {
                         mapview.setVisibility(View.VISIBLE);
@@ -170,6 +199,14 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         });
 
         getNearestStops();
+    }
+
+    public void toggleKeyboard(Boolean state) {
+        if (state) {
+            imm.showSoftInput(search, InputMethodManager.SHOW_IMPLICIT);
+        } else {
+            imm.hideSoftInputFromWindow(search.getWindowToken(), 0);
+        }
     }
 
     @Override

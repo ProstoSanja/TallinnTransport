@@ -40,7 +40,10 @@ public class Stop {
             for (int i = 0; i < data.length(); i++) {
                 JSONObject dep = data.getJSONObject(i);
                 if (dep.getString("tegelik_aeg").isEmpty()) {
-                    departures.add(new Departure(dep.getString("liin"), dep.getString("plaaniline_aeg")));
+                    Departure newitem = new Departure(dep.getString("liin"), dep.getString("plaaniline_aeg"));
+                    if (!newitem.deleteMe) {
+                        departures.add(newitem);
+                    }
                 }
             }
         } catch (Exception e) {

@@ -19,7 +19,7 @@
         android:text="@string/big_error"
         android:visibility="gone"/>
 
-    <EditText
+    <AutoCompleteTextView
         android:id="@+id/search_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

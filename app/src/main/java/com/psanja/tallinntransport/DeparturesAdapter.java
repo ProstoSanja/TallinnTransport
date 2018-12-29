@@ -1,6 +1,8 @@
 package com.psanja.tallinntransport;
 
 import android.content.Context;
+
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -74,14 +76,15 @@ public class DeparturesAdapter extends RecyclerView.Adapter<DeparturesAdapter.Vi
 
     // Create new views (invoked by the layout manager)
     @Override
-    public DeparturesAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int position) {
+    @NonNull
+    public DeparturesAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LinearLayout v = (LinearLayout) LayoutInflater.from(parent.getContext()).inflate(R.layout.recycler_item, parent, false);
         return new ViewHolder(v);
     }
 
     // Replace the contents of a view (invoked by the layout manager)
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
         Integer iteration = 0;
