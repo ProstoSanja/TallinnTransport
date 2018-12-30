@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Транспорт Таллинна</string>
+
+    <string name="navigation_timetable">Расписание</string>
+    <string name="navigation_map">Карта</string>
+    <string name="navigation_search">Поиск</string>
+
+    <string name="error_big">Отправления недоступны</string>
+    <string name="error_bus">Отправления автобусов в живом времени недоступны</string>
+    <string name="error_train">Отправления поездов в живом времени недоступны</string>
+    <string name="error_setup">При открытии приложения произошла внутренняя/сетевая ошибка</string>
+    <string name="error_name">Ошибка</string>
+    <string name="error_retry">Повторить</string>
+    <string name="error_unsupported">Остановка не поддерживается</string>
+    <string name="error_save">Ошибка при сохранении остановок в телефоне</string>
+    <string name="error_elron_down">Ошибка при подключении к серверам ELRON</string>
+    <string name="error_elron_parse">Ошибка при чтении данных с серверов ELRON</string>
+    <string name="error_tlt_down">Ошибка при подключении к серверам TLT</string>
+    <string name="error_tlt_parse">Ошибка при чтении данных с серверов TLT</string>
+
+    <string name="search_hint">Название остановки</string>
+    <string name="arrives_cont">Прибывает: </string>
+    <string name="loading">Загрузка</string>
+    <string name="no_departures">Отправления отсустствуют</string>
+
+    <string name="setup_welcome">Добро пожаловать в Транспорт Таллинна</string>
+    <string name="setup_1">Заканчиваю скачивание данных</string>
+    <string name="setup_2">Этому приложению нужно знать вашу локацию, чтобы быстро показывать отправления вокруг вас</string>
+    <string name="setup_grant">Разрешить</string>
+    <string name="setup_start">Начать</string>
+
+    <string name="google_maps_key">AIzaSyDbzS8CBF-mAMWY7z-CE_QXC0JYvVy65V0</string>
+</resources>

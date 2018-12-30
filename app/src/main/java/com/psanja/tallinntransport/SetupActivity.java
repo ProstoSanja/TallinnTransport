@@ -61,10 +61,10 @@ public class SetupActivity extends AppCompatActivity {
             @Override
             public void onError(String error) {
                 AlertDialog alertDialog = new AlertDialog.Builder(SetupActivity.this).create();
-                alertDialog.setTitle("Error");
+                alertDialog.setTitle(getResources().getString(R.string.error_name));
                 alertDialog.setCancelable(false);
                 alertDialog.setMessage(error);
-                alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Retry",
+                alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, getResources().getString(R.string.error_retry),
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
                                 dialog.dismiss();

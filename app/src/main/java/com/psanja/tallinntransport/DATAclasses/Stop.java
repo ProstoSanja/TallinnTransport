@@ -1,5 +1,9 @@
 package com.psanja.tallinntransport.DATAclasses;
 
+import android.content.Context;
+
+import com.psanja.tallinntransport.R;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -9,13 +13,17 @@ import java.util.Comparator;
 
 public class Stop {
 
-    public String name, status = "Loading";
+    public String name, status;
     private Integer limit;
+    private Context context;
+    public int sources = 1;
     public ArrayList<Departure> departures = new ArrayList<>();
 
-    public Stop(String name, Integer limit) {
+    public Stop(String name, Integer limit, Context context) {
         this.name = name;
         this.limit = limit;
+        this.context = context;
+        this.status = context.getResources().getString(R.string.loading);
     }
     public Stop(String name, String status) {
         this.name = name;
@@ -54,7 +62,11 @@ public class Stop {
 
     private void CheckSort() {
         if (departures.size() > 0) {
-            status = null;
+            if (sources == 1) {
+                status = null;
+            } else {
+                sources--;
+            }
             Collections.sort(departures, new Comparator<Departure>() {
                 @Override
                 public int compare(Departure o1, Departure o2) {
@@ -65,7 +77,11 @@ public class Stop {
                 departures = new ArrayList<>(departures.subList(0, limit));
             }
         } else {
-            status = "No Departures";
+            if (sources == 1) {
+                status = context.getResources().getString(R.string.no_departures);
+            } else {
+                sources--;
+            }
         }
     }
 }

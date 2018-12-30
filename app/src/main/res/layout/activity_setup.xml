@@ -16,7 +16,7 @@
         android:textColor="@color/white"
         android:textSize="20sp"
         android:drawableTop="@drawable/ic_transit"
-        android:text="Welcome to Tallinn Transport"/>
+        android:text="@string/setup_welcome"/>
 
     <View
         android:layout_width="match_parent"
@@ -30,6 +30,15 @@
         android:orientation="horizontal">
 
         <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:paddingRight="15sp"
+            android:textColor="@color/white"
+            android:textSize="20sp"
+            android:text="1"/>
+
+        <TextView
             android:id="@+id/down_text"
             android:layout_weight="3"
             android:layout_width="0dp"
@@ -37,7 +46,7 @@
             android:gravity="center_vertical"
             android:textColor="@color/white"
             android:textSize="16sp"
-            android:text="1. Completing first time setup"/>
+            android:text="@string/setup_1"/>
         <!--android:drawableRight="@drawable/ic_done" -->
 
         <ProgressBar
@@ -55,6 +64,15 @@
         android:orientation="horizontal">
 
         <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:textColor="@color/white"
+            android:paddingRight="15sp"
+            android:textSize="20sp"
+            android:text="2"/>
+
+        <TextView
             android:id="@+id/perm_text"
             android:layout_weight="3"
             android:layout_width="0dp"
@@ -62,14 +80,14 @@
             android:gravity="center_vertical"
             android:textColor="@color/white"
             android:textSize="16sp"
-            android:text="2. This app needs location permission in order to quickly show departures around you"/>
+            android:text="@string/setup_2"/>
 
         <Button
             android:id="@+id/perm_button"
             android:layout_weight="1"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:text="Grant"/>
+            android:text="@string/setup_grant"/>
 
 
     </LinearLayout>
@@ -84,6 +102,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:enabled="false"
-        android:text="Start"/>
+        android:text="@string/setup_start"/>
 
 </LinearLayout>

@@ -2,7 +2,6 @@ package com.psanja.tallinntransport;
 
 import android.content.Context;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -74,12 +73,11 @@ class StopsManager {
     void get(final String name, Integer limit, final DeparturesAdapter departuresAdapter) {
         String[] siriids = stoplist.get(name.toLowerCase());
         if (siriids != null) {
-            final Stop stop = new Stop(name, limit);
+            final Stop stop = new Stop(name, limit, context);
             departuresAdapter.add(stop);
             if (Arrays.asList(siriids).contains("-1")) {
-                //TODO: pass data about double loading to stop, so no false "no departures"
+                Boolean isElronOnly = siriids.length == 1;
                 //TODO: potentially clean -1
-                //TODO: if minus one is the only one, then pass info about one load ..   simple enough... var will be named sources
                 JsonObjectRequest elronRequest = new JsonObjectRequest(Request.Method.GET, "https://elron.ee/api/v1/stop?stop="+name, null,
                         new Response.Listener<JSONObject>() {
                             @Override
@@ -99,9 +97,15 @@ class StopsManager {
                                 stopsManagerReport.onReport(REQUEST_ERROR);
                             }
                         });
-                queue.add(elronRequest);
+                if (!isElronOnly) {
+                    stop.sources++;
+                    queue.add(elronRequest);
+                } else  {
+                    queue.add(elronRequest);
+                    return;
+                }
             }
-            //final ResponseCombiner responseCombiner = new ResponseCombiner(siriids.length, name, limit, departuresAdapter);
+
             String url = "https://transport.tallinn.ee/siri-stop-departures.php?stopid=" + TextUtils.join(",", siriids);
             StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
                     new Response.Listener<String>() {
@@ -120,7 +124,7 @@ class StopsManager {
                     });
             queue.add(stringRequest);
         } else {
-            departuresAdapter.add(new Stop(name, "Not TLT or Elron stop"));
+            departuresAdapter.add(new Stop(name, context.getResources().getString(R.string.error_unsupported)));
         }
     }
 

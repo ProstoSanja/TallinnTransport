@@ -11,6 +11,7 @@ import androidx.annotation.NonNull;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import androidx.appcompat.app.AppCompatActivity;
@@ -103,6 +104,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
     void setupAll() {
         setContentView(R.layout.activity_main);
+        setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
         refresh = findViewById(R.id.refresh);
         refresh.setColorScheme(R.color.buslight, R.color.tramlight, R.color.trolleylight);
         setRefresh(true);
@@ -120,10 +122,10 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                         break;
                     case StopsManager.SETUP_ERROR:
                         AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
-                        alertDialog.setTitle("Error");
+                        alertDialog.setTitle(getResources().getString(R.string.error_name));
                         alertDialog.setCancelable(false);
-                        alertDialog.setMessage("Failed to lauch app due to network connection/internal error");
-                        alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Retry",
+                        alertDialog.setMessage(getResources().getString(R.string.error_setup));
+                        alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, getResources().getString(R.string.error_retry),
                                 new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int which) {
                                         dialog.dismiss();

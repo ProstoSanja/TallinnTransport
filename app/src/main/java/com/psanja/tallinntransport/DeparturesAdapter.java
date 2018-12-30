@@ -122,7 +122,7 @@ public class DeparturesAdapter extends RecyclerView.Adapter<DeparturesAdapter.Vi
                     holder.departureBlock.setText(newdata.number);
                     holder.departureDestination.setText(newdata.destination);
                     holder.departureTime.setText(newdata.arriving);
-                    if (!isLive) { //todo: add bool to set from ext
+                    if (!isLive) {
                         holder.departureTime.setTextColor(context.getColor(R.color.grey));
                     } else if (newdata.delay) {
                         holder.departureTime.setTextColor(context.getColor(R.color.darkred));

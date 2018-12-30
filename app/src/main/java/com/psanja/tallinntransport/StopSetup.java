@@ -53,14 +53,14 @@ class StopSetup {
                             }
                             DownloadStopsELR();
                         } catch (UnsupportedEncodingException e) {
-                            resultListener.onError("Error parsing response from TLT webserver");
+                            resultListener.onError(context.getResources().getString(R.string.error_tlt_down));
                         }
                     }
                 },
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        resultListener.onError("Error connecting to TLT webserver");
+                        resultListener.onError(context.getResources().getString(R.string.error_tlt_parse));
                     }
                 });
         queue.add(stringRequest);
@@ -86,14 +86,14 @@ class StopSetup {
                             }
                             writeStops();
                         } catch (Exception e) {
-                            resultListener.onError("Error parsing response from ELRON webserver");
+                            resultListener.onError(context.getResources().getString(R.string.error_elron_parse));
                         }
                     }
                 },
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        resultListener.onError("Error connecting to ELRON webserver");
+                        resultListener.onError(context.getResources().getString(R.string.error_elron_down));
                     }
                 });
         queue.add(elronRequest);
@@ -107,7 +107,7 @@ class StopSetup {
             s.writeObject(newstoplist);
             s.close();
         } catch (Exception e) {
-            resultListener.onError("Error saving stops to internal storage");
+            resultListener.onError(context.getResources().getString(R.string.error_save));
         }
     }
 

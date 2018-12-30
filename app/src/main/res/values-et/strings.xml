@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Tallinna Transport</string>
+
+    <string name="navigation_timetable">Väljumised</string>
+    <string name="navigation_map">Kaart</string>
+    <string name="navigation_search">Otsing</string>
+
+    <string name="error_big">Väljumiste laadimine ebaõnnestus</string>
+    <string name="error_bus">Reaalajas busside väljumised pole kättesaadavad</string>
+    <string name="error_train">Reaalajas rongide väljumised pole kättesaadavad</string>
+    <string name="error_setup">Rakenduse avamine ebaõnnestus interneti või sisese vea tõttu</string>
+    <string name="error_name">Viga</string>
+    <string name="error_retry">Proovi uuesti</string>
+    <string name="error_unsupported">Pole TLT ega Elroni peatus</string>
+    <string name="error_save">Peatuste salvestamine ebaõnnestus</string>
+    <string name="error_elron_down">Viga ühendusel Elroni veebilehega</string>
+    <string name="error_elron_parse">Viga Elroni andmete lugemises</string>
+    <string name="error_tlt_down">Viga ühendusel TLT veebilehega</string>
+    <string name="error_tlt_parse">Viga TLT andmete lugemises</string>
+
+    <string name="search_hint">Peatuse nimi</string>
+    <string name="arrives_cont">Saabub: </string>
+    <string name="loading">Allalaadimine</string>
+    <string name="no_departures">Väljumised puuduvad</string>
+
+    <string name="setup_welcome">Tere tulemast Tallinna Transpordisse</string>
+    <string name="setup_1">Lõpetan andmete allalaadimine</string>
+    <string name="setup_2">Sellele reakendusele on vaja teada teie asukohta, et näidata väljumisi teie ümber</string>
+    <string name="setup_grant">Luba</string>
+    <string name="setup_start">Alusta</string>
+
+    <string name="google_maps_key">AIzaSyDbzS8CBF-mAMWY7z-CE_QXC0JYvVy65V0</string>
+</resources>

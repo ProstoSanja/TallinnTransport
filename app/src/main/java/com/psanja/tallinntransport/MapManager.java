@@ -7,7 +7,6 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
-import android.util.Log;
 
 import androidx.core.content.ContextCompat;
 
@@ -171,7 +170,7 @@ class MapManager {
                 this.latitude = unparsed.getDouble("latitude");
                 this.rotation = unparsed.getInt("rongi_suund");
                 this.title = unparsed.getString("liin");
-                this.info = "Arrives: " + unparsed.getString("reisi_lopp_aeg");// + "\nSpeed: " + unparsed.getString("kiirus")+"km/h";
+                this.info = context.getResources().getString(R.string.arrives_cont) + unparsed.getString("reisi_lopp_aeg");// + "\nSpeed: " + unparsed.getString("kiirus")+"km/h";
             } catch (Exception e) {
                 e.printStackTrace();
                 onMapStatusListener.onMapStatus(TRAIN_ERROR);
