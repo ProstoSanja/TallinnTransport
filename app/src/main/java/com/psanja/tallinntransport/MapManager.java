@@ -37,14 +37,21 @@ class MapManager {
     private Context context;
     private RequestQueue queue;
     private boolean running;
-    private StatusManager statusManager;
+    OnMapStatusListener onMapStatusListener;
 
-    MapManager(Context context, GoogleMap googleMap, StatusManager statusManager, RequestQueue queue) {
+    MapManager(Context context, GoogleMap googleMap, RequestQueue queue, OnMapStatusListener onMapStatusListener) {
         this.context = context;
         this.googleMap = googleMap;
-        this.statusManager = statusManager;
         this.queue = queue;
+        this.onMapStatusListener = onMapStatusListener;
     }
+
+    public final static int BUS_OK = 1, BUS_ERROR = 2, TRAIN_OK = 3, TRAIN_ERROR = 4;
+
+    public interface OnMapStatusListener {
+        void onMapStatus(Integer status);
+    }
+
 
     void start() {
         if (!running) {
@@ -62,56 +69,58 @@ class MapManager {
 
     private final Runnable mHandlerUpdate = new Runnable() {
         public void run() {
-            Log.w("DEBUG", "MAP UPDATE");
+            //Log.w("DEBUG", "MAP UPDATE");
 
-            StringRequest stringRequest = new StringRequest(Request.Method.GET, "https://transport.tallinn.ee/gps.txt",
-                    new Response.Listener<String>() {
-                        @Override
-                        public void onResponse(String response) {
-                            if (response.isEmpty()) {
-                                statusManager.reportMap(false);
-                            } else {
-                                statusManager.reportMap(true);
-                                for (String unparsedvehicle : response.split(System.getProperty("line.separator"))) {
-                                    //VehicleManager.ShortVehicle vehicle = vehicleManager.setVehicle(unparsedvehicle);
-                                    setVehicle(new Vehicle(unparsedvehicle));
-                                }
-                            }
-                        }
-                    },
-                    new Response.ErrorListener() {
-                        @Override
-                        public void onErrorResponse(VolleyError e) {
-                            statusManager.reportMap(false);
-                        }
-                    });
-            queue.add(stringRequest);
+            DownloadTLT();
             DownloadElron();
             mHandler.postDelayed(mHandlerUpdate, 10000);
         }
     };
+
+    private void DownloadTLT() {
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, "https://transport.tallinn.ee/gps.txt",
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        if (response.isEmpty()) {
+                            onMapStatusListener.onMapStatus(BUS_ERROR);
+                        } else {
+                            onMapStatusListener.onMapStatus(BUS_OK);
+                            for (String unparsedvehicle : response.split(System.getProperty("line.separator"))) {
+                                setVehicle(new Vehicle(unparsedvehicle));
+                            }
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError e) {
+                        onMapStatusListener.onMapStatus(BUS_ERROR);
+                    }
+                });
+        queue.add(stringRequest);
+    }
 
     private void DownloadElron() {
         JsonObjectRequest elronRequest = new JsonObjectRequest(Request.Method.GET, "https://elron.ee/api/v1/map",null,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-                        statusManager.reportTrain(true);
                         try {
                             JSONArray trains = response.getJSONArray("data");
                             for (int i=0; i < trains.length(); i++) {
                                 setVehicle(new Vehicle(trains.getJSONObject(i)));
-
                             }
+                            onMapStatusListener.onMapStatus(TRAIN_OK);
                         } catch (Exception e) {
-                            statusManager.reportTrain(false);
+                            onMapStatusListener.onMapStatus(TRAIN_ERROR);
                         }
                     }
                 },
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        statusManager.reportTrain(false);
+                        onMapStatusListener.onMapStatus(TRAIN_ERROR);
                     }
             });
         queue.add(elronRequest);
@@ -165,7 +174,7 @@ class MapManager {
                 this.info = "Arrives: " + unparsed.getString("reisi_lopp_aeg");// + "\nSpeed: " + unparsed.getString("kiirus")+"km/h";
             } catch (Exception e) {
                 e.printStackTrace();
-                statusManager.reportTrain(false);
+                onMapStatusListener.onMapStatus(TRAIN_ERROR);
             }
 
         }

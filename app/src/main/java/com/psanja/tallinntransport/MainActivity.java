@@ -3,10 +3,14 @@ package com.psanja.tallinntransport;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import androidx.annotation.NonNull;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import androidx.appcompat.app.AppCompatActivity;
@@ -14,8 +18,6 @@ import android.os.Bundle;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.SparseArray;
 import android.view.KeyEvent;
 import android.view.MenuItem;
@@ -52,7 +54,8 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Objects;
 
-public class MainActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener {
+
+public class MainActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener, MapManager.OnMapStatusListener {
 
 
     InputMethodManager imm;
@@ -70,80 +73,88 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     private MapManager mapManager;
 
     private int currentsate = R.id.navigation_timetable;
-    private StatusManager statusManager;
+    private TextView errorbig, errorbus, errortrain;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
 
-        //TODO: stop mapmanager on pause/stop
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
-            finish();
-            return;
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            setupAll();
+        } else {
+            Intent intent = new Intent(this, SetupActivity.class);
+            startActivityForResult(intent, 1);
         }
+    }
 
-        queue = Volley.newRequestQueue(this);
-        statusManager = new StatusManager(getApplicationContext(), (TextView) findViewById(R.id.maperror));
-        imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == 1) {
+            switch (resultCode) {
+                case 0:
+                    finish();
+                    break;
+                default:
+                    setupAll();
+                    break;
+            }
+        }
+    }
 
+    void setupAll() {
+        setContentView(R.layout.activity_main);
         refresh = findViewById(R.id.refresh);
         refresh.setColorScheme(R.color.buslight, R.color.tramlight, R.color.trolleylight);
         setRefresh(true);
         refresh.setOnRefreshListener(this);
 
-        RecyclerView recyclerView = findViewById(R.id.recycler_holder);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        mainAdapter = new DeparturesAdapter(getApplicationContext(), statusManager);
-        recyclerView.setAdapter(mainAdapter);
-        stopsManager = new StopsManager(getApplicationContext(), queue, statusManager);
 
-        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-        mapview = findViewById(R.id.mapholder);
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
-        mapFragment.getMapAsync(new OnMapReadyCallback() {
-            @SuppressLint("MissingPermission")
+        queue = Volley.newRequestQueue(this);
+        stopsManager = new StopsManager(getApplicationContext(), queue, new StopsManager.StopsManagerReport() {
             @Override
-            public void onMapReady(GoogleMap googleMap) {
-                mMap = googleMap;
-                googleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(getApplicationContext(), R.raw.map_style));
-                //googleMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
-                googleMap.setTrafficEnabled(true);
-                googleMap.setMyLocationEnabled(true);
-                googleMap.getUiSettings().setRotateGesturesEnabled(false);
-                googleMap.getUiSettings().setMyLocationButtonEnabled(true);
-                googleMap.getUiSettings().setMapToolbarEnabled(false);
-                googleMap.getUiSettings().setCompassEnabled(false);
-                googleMap.getUiSettings().setTiltGesturesEnabled(false);
-                mapManager = new MapManager(getApplicationContext(), googleMap, statusManager, queue);
-                mapManager.start();
-            }
-        });
-
-        search = findViewById(R.id.search_name);
-        final ArrayAdapter<String> searchAdapter = new ArrayAdapter<> (this, android.R.layout.select_dialog_item, new ArrayList<String>());
-        search.setAdapter(searchAdapter);
-        search.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                String query = s.toString();
-                searchAdapter.clear();
-                if (query.length() > 1) {
-                    searchAdapter.addAll(stopsManager.searchStop(query));
+            public void onReport(Integer status) {
+                switch (status) {
+                    case StopsManager.SETUP_OK:
+                        getNearestStops();
+                        search.setAdapter(new ArrayAdapter<> (getApplicationContext(), android.R.layout.select_dialog_item, stopsManager.GetStops()));
+                        break;
+                    case StopsManager.SETUP_ERROR:
+                        AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
+                        alertDialog.setTitle("Error");
+                        alertDialog.setCancelable(false);
+                        alertDialog.setMessage("Failed to lauch app due to network connection/internal error");
+                        alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Retry",
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        dialog.dismiss();
+                                        stopsManager.TryLoadStops();
+                                    }
+                                });
+                        alertDialog.show();
+                        break;
+                    case StopsManager.ALL_OK:
+                        errorbig.setVisibility(View.GONE);
+                        break;
+                    case StopsManager.REQUEST_ERROR:
+                        errorbig.setVisibility(View.VISIBLE);
+                        break;
                 }
             }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-
-            }
         });
+        imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+
+        RecyclerView recyclerView = findViewById(R.id.recycler_holder);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        mainAdapter = new DeparturesAdapter(getApplicationContext());
+        recyclerView.setAdapter(mainAdapter);
+
+        errorbig = findViewById(R.id.error_big);
+        errorbus = findViewById(R.id.error_bus);
+        errortrain = findViewById(R.id.error_train);
+
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+
+        search = findViewById(R.id.search_name);
         search.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -160,6 +171,32 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                 return false;
             }
         });
+
+        stopsManager.TryLoadStops();
+
+        //TODO: stop mapmanager on pause/stop
+        mapview = findViewById(R.id.mapholder);
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+        mapFragment.getMapAsync(new OnMapReadyCallback() {
+            @SuppressLint("MissingPermission")
+            @Override
+            public void onMapReady(GoogleMap googleMap) {
+                mMap = googleMap;
+                googleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(getApplicationContext(), R.raw.map_style));
+                //googleMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
+                googleMap.setTrafficEnabled(true);
+                googleMap.setMyLocationEnabled(true);
+                googleMap.getUiSettings().setRotateGesturesEnabled(false);
+                googleMap.getUiSettings().setMyLocationButtonEnabled(true);
+                googleMap.getUiSettings().setMapToolbarEnabled(false);
+                googleMap.getUiSettings().setCompassEnabled(false);
+                googleMap.getUiSettings().setTiltGesturesEnabled(false);
+                mapManager = new MapManager(getApplicationContext(), googleMap, queue, MainActivity.this);
+                mapManager.start();
+            }
+        });
+
+
         BottomNavigationView navigation = findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
@@ -197,8 +234,26 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                 return true;
             }
         });
+    }
 
-        getNearestStops();
+    @Override
+    public void onMapStatus(Integer status) {
+        switch (status) {
+            case MapManager.BUS_OK:
+                mainAdapter.isLive = true;
+                errorbus.setVisibility(View.GONE);
+                break;
+            case MapManager.BUS_ERROR:
+                mainAdapter.isLive = false;
+                errorbus.setVisibility(View.VISIBLE);
+                break;
+            case MapManager.TRAIN_OK:
+                errortrain.setVisibility(View.GONE);
+                break;
+            case MapManager.TRAIN_ERROR:
+                errortrain.setVisibility(View.VISIBLE);
+                break;
+        }
     }
 
     public void toggleKeyboard(Boolean state) {
@@ -211,7 +266,6 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
     @Override
     public void onRefresh() {
-        setRefresh(true);
         if (currentsate == R.id.navigation_timetable) {
             getNearestStops();
         } else if (currentsate == R.id.navigation_search) {
@@ -242,7 +296,8 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                             }, new Response.ErrorListener() {
                         @Override
                         public void onErrorResponse(VolleyError error) {
-                            statusManager.reportBus(false);
+                            onMapStatus(MapManager.BUS_ERROR);
+                            onMapStatus(MapManager.TRAIN_ERROR);
                             setRefresh(false);
                         }
                     });

@@ -5,18 +5,41 @@
     tools:context="com.psanja.tallinntransport.MainActivity"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/white"
     android:orientation="vertical">
 
     <TextView
-        android:id="@+id/maperror"
+        android:id="@+id/error_big"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/darkred"
         android:textAlignment="center"
         android:textColor="@color/white"
         android:textSize="16sp"
-        android:paddingVertical="5sp"
-        android:text="@string/big_error"
+        android:padding="5sp"
+        android:text="@string/error_big"
+        android:visibility="gone"/>
+    <TextView
+        android:id="@+id/error_bus"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/darkyellow"
+        android:textAlignment="center"
+        android:textColor="@color/white"
+        android:textSize="16sp"
+        android:padding="5sp"
+        android:text="@string/error_bus"
+        android:visibility="gone"/>
+    <TextView
+        android:id="@+id/error_train"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/darkyellow"
+        android:textAlignment="center"
+        android:textColor="@color/white"
+        android:textSize="16sp"
+        android:padding="5sp"
+        android:text="@string/error_train"
         android:visibility="gone"/>
 
     <AutoCompleteTextView
@@ -66,7 +89,7 @@
         android:id="@+id/navigation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?android:attr/windowBackground"
+        android:background="@color/white"
         app:menu="@menu/navigation" />
 
 </LinearLayout>

@@ -17,10 +17,11 @@ import java.util.ArrayList;
 
 public class DeparturesAdapter extends RecyclerView.Adapter<DeparturesAdapter.ViewHolder> {
 
-    private StatusManager statusManager;
     private ArrayList<Stop> dataset = new ArrayList<>();
 
     private Context context;
+
+    public Boolean isLive = true;
 
     // Provide a reference to the views for each data item
     // Complex data items may need more than one view per item, and
@@ -43,9 +44,8 @@ public class DeparturesAdapter extends RecyclerView.Adapter<DeparturesAdapter.Vi
     }
 
     // Provide a suitable constructor (depends on the kind of dataset)
-    DeparturesAdapter(Context context, StatusManager statusManager) {
+    DeparturesAdapter(Context context) {
         this.context = context;
-        this.statusManager = statusManager;
     }
 
     Integer add(Stop stop) {
@@ -122,7 +122,7 @@ public class DeparturesAdapter extends RecyclerView.Adapter<DeparturesAdapter.Vi
                     holder.departureBlock.setText(newdata.number);
                     holder.departureDestination.setText(newdata.destination);
                     holder.departureTime.setText(newdata.arriving);
-                    if (!statusManager.getStatus()) {
+                    if (!isLive) { //todo: add bool to set from ext
                         holder.departureTime.setTextColor(context.getColor(R.color.grey));
                     } else if (newdata.delay) {
                         holder.departureTime.setTextColor(context.getColor(R.color.darkred));

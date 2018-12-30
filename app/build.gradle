@@ -7,8 +7,8 @@ android {
         minSdkVersion 23
         targetSdkVersion 28
         buildToolsVersion "28.0.3"
-        versionCode 14
-        versionName "3.0-alpha3"
+        versionCode 15
+        versionName "3.0-alpha4"
     }
     buildTypes {
         release {
@@ -25,4 +25,5 @@ dependencies {
     implementation 'com.google.android.gms:play-services-location:16.0.0'
     implementation 'com.android.volley:volley:1.1.0'
     implementation 'com.google.android.material:material:1.1.0-alpha02'
+    implementation 'androidx.constraintlayout:constraintlayout:1.1.2'
 }

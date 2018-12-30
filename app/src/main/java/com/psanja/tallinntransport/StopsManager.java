@@ -2,6 +2,7 @@ package com.psanja.tallinntransport;
 
 import android.content.Context;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -11,153 +12,63 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.psanja.tallinntransport.DATAclasses.Stop;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 class StopsManager {
 
     private Context context;
     private RequestQueue queue;
-    private StatusManager statusManager;
+    private StopsManagerReport stopsManagerReport;
 
     private Map<String, String[]> stoplist = new HashMap<>();
 
-    StopsManager(Context context, RequestQueue queue, StatusManager statusManager) {
+    StopsManager(Context context, RequestQueue queue, StopsManagerReport stopsManagerReport) {
         this.context = context;
         this.queue = queue;
-        this.statusManager = statusManager;
-        LoadStops();
+        this.stopsManagerReport = stopsManagerReport;
     }
 
-    private void LoadStops() {
+    public final static int SETUP_OK = 1, ALL_OK = 2, REQUEST_ERROR = 3, SETUP_ERROR = 4;
+
+    public interface StopsManagerReport {
+        void onReport(Integer status);
+    }
+
+    public void TryLoadStops() {
         try {
             FileInputStream fs = context.openFileInput("stops");
             ObjectInputStream ss = new ObjectInputStream(fs);
             stoplist = (Map<String, String[]>) ss.readObject();
             ss.close();
-            //delay it or dont run at all if not needed
-            new stopSetup(null);
-        } catch (Exception e) {
-            new stopSetup(null);
+            stopsManagerReport.onReport(SETUP_OK);
+        } catch (IOException | ClassNotFoundException e) {
+            DownloadStops();
         }
     }
 
-    public class stopSetup {
-
-        Map<String, String[]> newstoplist = new HashMap<>();
-        Void callback;
-
-        stopSetup(Void callback) {
-            this.callback = callback;
-            DownloadStopsTLL();
-        }
-
-        private void DownloadStopsTLL() {
-            StringRequest stringRequest = new StringRequest(Request.Method.GET, "https://transport.tallinn.ee/data/stops.txt",
-                    new Response.Listener<String>() {
-                        @Override
-                        public void onResponse(String response) {
-                            String preprocess = null;
-                            try {
-                                preprocess = new String(response.getBytes("ISO-8859-1"), "UTF-8");
-                            } catch (UnsupportedEncodingException e) {
-                                e.printStackTrace();
-                            }
-                            String[] rawstops = preprocess.split("\n");
-                            for (String rawstop : rawstops) {
-                                addBus(rawstop.split(";"));
-                            }
-                            DownloadStopsELR();
-                        }
-                    },
-                    new Response.ErrorListener() {
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
-                            statusManager.reportBus(false);
-                        }
-                    });
-            queue.add(stringRequest);
-        }
-
-        private void DownloadStopsELR() {
-            JsonObjectRequest elronRequest = new JsonObjectRequest(Request.Method.GET, "https://elron.ee/api/v1/stops", null,
-                    new Response.Listener<JSONObject>() {
-                        @Override
-                        public void onResponse(JSONObject response) {
-                            statusManager.reportTrain(true);
-                            try {
-                                JSONArray stops = response.getJSONArray("data");
-                                for (int i = 0; i < stops.length(); i++) {
-                                    String stop = stops.getJSONObject(i).getString("peatus").toLowerCase();
-                                    String[] tryget = newstoplist.get(stop);
-                                    if (tryget != null) {
-                                        List<String> newids = new ArrayList<>(Arrays.asList(tryget));
-                                        newids.add("-1");
-                                        newstoplist.put(stop, newids.toArray(new String[0]));
-                                    } else {
-                                        newstoplist.put(stop, new String[]{"-1"});
-                                    }
-                                }
-                            } catch (Exception e) {
-                                statusManager.reportTrain(false);
-                            }
-                            writeStops();
-                        }
-                    },
-                    new Response.ErrorListener() {
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
-                            statusManager.reportTrain(false);
-                        }
-                    });
-            queue.add(elronRequest);
-        }
-
-        private void writeStops() {
-            try {
-                FileOutputStream f = context.openFileOutput("stops", Context.MODE_PRIVATE);
-                ObjectOutputStream s = new ObjectOutputStream(f);
-                s.writeObject(newstoplist);
-                s.close();
-                stoplist = newstoplist;
-                //TODO: call callback if not null
-            } catch (Exception e) {
-                statusManager.reportBus(false);
+    private void DownloadStops() {
+        new StopSetup(new StopSetup.OnResultListener() {
+            @Override
+            public void onSuccess(Map<String, String[]> list) {
+                stoplist = list;
+                stopsManagerReport.onReport(SETUP_OK);
             }
-        }
 
-        //this script is actually pretty reasonable, considering how much shit they have in thier source file
-        private String currentName;
-        private List<String> currentSiriIDs;
-
-        void addBus(String[] data) {
-            if (data.length > 5) {
-                if (currentName != null) {
-                    newstoplist.put(currentName, currentSiriIDs.toArray(new String[0]));
-                }
-                currentName = data[5].toLowerCase();
-                String[] tryget = newstoplist.get(currentName);
-                currentSiriIDs = new ArrayList<>();
-                if (tryget != null) {
-                    currentSiriIDs.addAll(Arrays.asList(tryget));
-                }
+            @Override
+            public void onError(String error) {
+                stopsManagerReport.onReport(SETUP_ERROR);
             }
-            currentSiriIDs.add(data[1]);
-        }
-
+        }, context, queue);
     }
 
     void get(final String name, Integer limit, final DeparturesAdapter departuresAdapter) {
@@ -173,19 +84,19 @@ class StopsManager {
                         new Response.Listener<JSONObject>() {
                             @Override
                             public void onResponse(JSONObject response) {
-                                statusManager.reportTrain(true);
                                 try {
                                     stop.addData(response.getJSONArray("data"));
                                     departuresAdapter.notifyDataSetChanged();
+                                    stopsManagerReport.onReport(ALL_OK);
                                 } catch (Exception e) {
-                                    statusManager.reportTrain(false);
+                                    stopsManagerReport.onReport(REQUEST_ERROR);
                                 }
                             }
                         },
                         new Response.ErrorListener() {
                             @Override
                             public void onErrorResponse(VolleyError error) {
-                                statusManager.reportTrain(false);
+                                stopsManagerReport.onReport(REQUEST_ERROR);
                             }
                         });
                 queue.add(elronRequest);
@@ -198,14 +109,13 @@ class StopsManager {
                         public void onResponse(String response) {
                             stop.addData(response);
                             departuresAdapter.notifyDataSetChanged();
-                            //potentially update stop
+                            stopsManagerReport.onReport(ALL_OK);
                         }
                     },
                     new Response.ErrorListener() {
                         @Override
                         public void onErrorResponse(VolleyError error) {
-                            departuresAdapter.add(new Stop(name, "Connection Error"));
-                            statusManager.reportBus(false);
+                            stopsManagerReport.onReport(REQUEST_ERROR);
                         }
                     });
             queue.add(stringRequest);
@@ -214,25 +124,23 @@ class StopsManager {
         }
     }
 
-
-    ArrayList<String> searchStop(String search) {
-        search = search.toLowerCase().trim();
-        ArrayList<String> response = new ArrayList<>();
-        for (String result: stoplist.keySet()) {
-            if (result.startsWith(search)) {
-                response.add(toUpperCase(result));
-            }
-        }
+    //TODO: implement uppercase
+    ArrayList<String> GetStops() {
+        ArrayList<String> response = new ArrayList<>(stoplist.keySet());
         Collections.sort(response, new Comparator<String>() {
             @Override
             public int compare(String o1, String o2) {
-                return o1.length() - o2.length();
+                Integer delta = o1.length() - o2.length();
+                if (delta != 0) {
+                    return delta;
+                }
+                return o1.compareTo(o2);
             }
         });
         return response;
     }
 
-    String toUpperCase(String value) {
+    private String toUpperCase(String value) {
         if (value != null) {
             if (value.length() > 1) {
                 return value.substring(0, 1).toUpperCase() + value.substring(1);
@@ -242,63 +150,4 @@ class StopsManager {
         }
         return null;
     }
-/*
-    private class ResponseCombiner {
-
-        Integer required;
-        Integer position;
-        Integer limit;
-        Stop stop;
-        Boolean error;
-        DeparturesAdapter departuresAdapter;
-
-        ResponseCombiner(Integer responses, String name, Integer limit, DeparturesAdapter departuresAdapter) {
-            required = responses;
-            this.limit = limit;
-            stop = new Stop(name);
-            this.departuresAdapter = departuresAdapter;
-            position = this.departuresAdapter.add(stop);
-        }
-
-        void process(String response) {
-            required--;
-            String[] responses = response.split("\n");
-            if (responses.length >= 3) {
-                if (!responses[0].contains("ERROR:")) {
-                    responses[0] = null;
-                    responses[1] = null;
-                    for (String departure : responses) {
-                        if (departure != null) {
-                            stop.departures.add(new Departure(departure));
-                        }
-                    }
-                } else {
-                    error = true;
-                }
-            }
-
-            if (required <= 0) {
-                if (error != null) {
-                    statusManager.reportBus(false);
-                } else {
-                    statusManager.reportBus(true);
-                    if (stop.departures.size() <= 0) {
-                        stop.departures.add(new Departure(Departure.NODEPARTURE));
-                    } else {
-                        Collections.sort(stop.departures, new Comparator<Departure>() {
-                            @Override
-                            public int compare(Departure o1, Departure o2) {
-                                return o1.arrivingseconds.compareTo(o2.arrivingseconds);
-                            }
-                        });
-                        if (stop.departures.size() > limit) {
-                            stop.departures = new ArrayList<>(stop.departures.subList(0, limit));
-                        }
-                    }
-                    departuresAdapter.set(position, stop);
-                }
-            }
-        }
-    }
-*/
 }

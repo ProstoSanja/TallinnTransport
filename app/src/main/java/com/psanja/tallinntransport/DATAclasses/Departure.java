@@ -24,9 +24,14 @@ public class Departure {
         }
     }
 
-    Departure(String line, String time) {
+    Departure(String destination, String from, String time) {
         type = "train";
         number = "ELR";
+        destination = destination.split("-")[1].trim();
+        if (destination.toLowerCase().equals(from.toLowerCase())) {
+            deleteMe = true;
+            return;
+        }
         arrivingseconds = convertSeconds(time);
         //TODO: THIS WILL LAST ONLY UNTIL SPRING DEAL WITH DST AND TIMEZONES
         long delaydelt = (((System.currentTimeMillis()/1000)+7200)%86400) - arrivingseconds;
@@ -36,8 +41,8 @@ public class Departure {
         } else if (delaydelt > 30){
             delay = true;
         }
+        this.destination = destination;
         arriving = time;
-        destination = line.split("-")[1].trim();
     }
 
     @SuppressLint("DefaultLocale")
