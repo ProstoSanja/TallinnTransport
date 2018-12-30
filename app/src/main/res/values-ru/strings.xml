@@ -20,7 +20,7 @@
     <string name="error_tlt_parse">Ошибка при чтении данных с серверов TLT</string>
 
     <string name="search_hint">Название остановки</string>
-    <string name="arrives_cont">Прибывает: </string>
+    <string name="arrives_cont">Прибывает:\u0020</string>
     <string name="loading">Загрузка</string>
     <string name="no_departures">Отправления отсустствуют</string>
 

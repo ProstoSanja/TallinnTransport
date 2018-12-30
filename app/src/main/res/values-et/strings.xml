@@ -20,7 +20,7 @@
     <string name="error_tlt_parse">Viga TLT andmete lugemises</string>
 
     <string name="search_hint">Peatuse nimi</string>
-    <string name="arrives_cont">Saabub: </string>
+    <string name="arrives_cont">Saabub:\u0020</string>
     <string name="loading">Allalaadimine</string>
     <string name="no_departures">Väljumised puuduvad</string>
 

@@ -1,5 +1,6 @@
 package com.psanja.tallinntransport;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -19,10 +20,10 @@ import java.util.Map;
 
 public class SetupActivity extends AppCompatActivity {
 
-    Integer status = 0;
-    Button confirm, permbutton;
-    TextView permtext, downtext;
-    ProgressBar downprogress;
+    private Integer status = 0;
+    private Button confirm, permbutton;
+    private TextView permtext, downtext;
+    private ProgressBar downprogress;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,7 +77,7 @@ public class SetupActivity extends AppCompatActivity {
         }, getApplicationContext(), Volley.newRequestQueue(getApplicationContext()));
     }
 
-    public void DownloadComplete() {
+    private void DownloadComplete() {
         status++;
         downtext.setCompoundDrawablesWithIntrinsicBounds(null, null, getApplication().getDrawable(R.drawable.ic_done), null);
         downprogress.setVisibility(View.GONE);
@@ -84,7 +85,7 @@ public class SetupActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode,@NonNull String permissions[],@NonNull int[] grantResults) {
         if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             status++;
             permtext.setCompoundDrawablesWithIntrinsicBounds(null, null, getApplication().getDrawable(R.drawable.ic_done), null);

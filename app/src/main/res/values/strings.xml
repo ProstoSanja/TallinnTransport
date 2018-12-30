@@ -20,7 +20,7 @@
     <string name="error_tlt_parse">Error parsing response from TLT webserver</string>
 
     <string name="search_hint">Stop name</string>
-    <string name="arrives_cont">Arrives: </string>
+    <string name="arrives_cont">Arrives:\u0020</string>
     <string name="loading">Loading</string>
     <string name="no_departures">No Departures</string>
 

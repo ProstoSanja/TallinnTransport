@@ -7,6 +7,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
+import android.util.Log;
 
 import androidx.core.content.ContextCompat;
 
@@ -36,7 +37,7 @@ class MapManager {
     private Context context;
     private RequestQueue queue;
     private boolean running;
-    OnMapStatusListener onMapStatusListener;
+    private OnMapStatusListener onMapStatusListener;
 
     MapManager(Context context, GoogleMap googleMap, RequestQueue queue, OnMapStatusListener onMapStatusListener) {
         this.context = context;
@@ -68,7 +69,7 @@ class MapManager {
 
     private final Runnable mHandlerUpdate = new Runnable() {
         public void run() {
-            //Log.w("DEBUG", "MAP UPDATE");
+            Log.w("DEBUG", "MAP UPDATE");
 
             DownloadTLT();
             DownloadElron();
@@ -85,7 +86,7 @@ class MapManager {
                             onMapStatusListener.onMapStatus(BUS_ERROR);
                         } else {
                             onMapStatusListener.onMapStatus(BUS_OK);
-                            for (String unparsedvehicle : response.split(System.getProperty("line.separator"))) {
+                            for (String unparsedvehicle : response.split("\n")) {
                                 setVehicle(new Vehicle(unparsedvehicle));
                             }
                         }

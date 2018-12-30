@@ -59,10 +59,10 @@ import java.util.Objects;
 public class MainActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener, MapManager.OnMapStatusListener {
 
 
-    InputMethodManager imm;
-    RequestQueue queue;
+    private InputMethodManager imm;
+    private RequestQueue queue;
 
-    StopsManager stopsManager;
+    private StopsManager stopsManager;
     private SwipeRefreshLayout refresh;
     private AutoCompleteTextView search;
     private DeparturesAdapter mainAdapter;
@@ -102,7 +102,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         }
     }
 
-    void setupAll() {
+    private void setupAll() {
         setContentView(R.layout.activity_main);
         setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
         refresh = findViewById(R.id.refresh);
@@ -176,7 +176,6 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
         stopsManager.TryLoadStops();
 
-        //TODO: stop mapmanager on pause/stop
         mapview = findViewById(R.id.mapholder);
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(new OnMapReadyCallback() {
@@ -258,7 +257,23 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         }
     }
 
-    public void toggleKeyboard(Boolean state) {
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (mapManager != null) {
+            mapManager.start();
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (mapManager != null) {
+            mapManager.stop();
+        }
+    }
+
+    private void toggleKeyboard(Boolean state) {
         if (state) {
             imm.showSoftInput(search, InputMethodManager.SHOW_IMPLICIT);
         } else {
@@ -277,7 +292,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         }
     }
 
-    public void setRefresh(boolean type) {
+    private void setRefresh(boolean type) {
         refresh.setRefreshing(type);
     }
 
