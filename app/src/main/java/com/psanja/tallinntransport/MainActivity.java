@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import androidx.annotation.NonNull;
+
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import androidx.appcompat.app.AlertDialog;
@@ -19,6 +20,7 @@ import android.os.Bundle;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.os.Handler;
 import android.util.SparseArray;
 import android.view.KeyEvent;
 import android.view.MenuItem;
@@ -39,7 +41,6 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -61,6 +62,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
     private InputMethodManager imm;
     private RequestQueue queue;
+    private final Handler mHandler = new Handler();
 
     private StopsManager stopsManager;
     private SwipeRefreshLayout refresh;
@@ -69,12 +71,12 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     private SparseArray<ArrayList<Stop>> dataBackup = new SparseArray<>();
 
     private FrameLayout mapview;
-    private GoogleMap mMap;
+    private BottomNavigationView navigation;
     private FusedLocationProviderClient mFusedLocationClient;
     private MapManager mapManager;
 
     private int currentsate = R.id.navigation_timetable;
-    private TextView errorbig, errorbus, errortrain;
+    private TextView errorlocation, errorbig, errorbus, errortrain;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -147,9 +149,10 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
         RecyclerView recyclerView = findViewById(R.id.recycler_holder);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        mainAdapter = new DeparturesAdapter(getApplicationContext());
+        mainAdapter = new DeparturesAdapter(MainActivity.this);
         recyclerView.setAdapter(mainAdapter);
 
+        errorlocation = findViewById(R.id.error_location);
         errorbig = findViewById(R.id.error_big);
         errorbus = findViewById(R.id.error_bus);
         errortrain = findViewById(R.id.error_train);
@@ -182,7 +185,6 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
             @SuppressLint("MissingPermission")
             @Override
             public void onMapReady(GoogleMap googleMap) {
-                mMap = googleMap;
                 googleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(getApplicationContext(), R.raw.map_style));
                 //googleMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
                 googleMap.setTrafficEnabled(true);
@@ -198,7 +200,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         });
 
 
-        BottomNavigationView navigation = findViewById(R.id.navigation);
+        navigation = findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -235,6 +237,14 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                 return true;
             }
         });
+    }
+
+    public Boolean openMapAt(Integer id) {
+        if (mapManager.SetCamera(id)) {
+            navigation.setSelectedItemId(R.id.navigation_map);
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -298,11 +308,14 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
     @SuppressLint("MissingPermission")
     private void getNearestStops() {
+        mHandler.postDelayed(mLocationFailed, 5000);
         mFusedLocationClient.getLastLocation().addOnSuccessListener(this, new OnSuccessListener<Location>() {
             @Override
             public void onSuccess(Location location) {
-                if (location != null) {
-                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(), location.getLongitude()), 15.5f));
+                if (location != null && mapManager != null) {
+                    mHandler.removeCallbacks(mLocationFailed);
+                    errorlocation.setVisibility(View.GONE);
+                    mapManager.SetCamera(new LatLng(location.getLatitude(), location.getLongitude()));
                     String url ="https://transit.land/api/v1/stops?lat=" + location.getLatitude() + "&lon=" + location.getLongitude() + "&r=200&sort_key=name";
                     JsonObjectRequest jsObjRequest = new JsonObjectRequest(Request.Method.GET, url,null,
                             new Response.Listener<JSONObject>() {
@@ -324,6 +337,14 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         });
     }
 
+    private final Runnable mLocationFailed = new Runnable() {
+        public void run() {
+            setRefresh(false);
+            errorlocation.setVisibility(View.VISIBLE);
+            mHandler.postDelayed(mLocationFailed, 5000);
+        }
+    };
+
     private void processNearestStops(JSONObject response) {
         try {
             String name = "";
@@ -339,10 +360,14 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                     stopsManager.get(name, 15, mainAdapter);
                 }
             }
-            setRefresh(false);
+            if (stops.length() == 0 ) {
+                stopsManager.NoStopsFound(mainAdapter);
+            }
         } catch (JSONException e) {
             e.printStackTrace();
+            stopsManager.NoStopsFound(mainAdapter);
         }
+        setRefresh(false);
     }
 
 

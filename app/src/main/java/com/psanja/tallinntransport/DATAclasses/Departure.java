@@ -2,11 +2,26 @@ package com.psanja.tallinntransport.DATAclasses;
 
 
 import android.annotation.SuppressLint;
+import android.content.Context;
+
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.psanja.tallinntransport.R;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
 
 public class Departure {
     public Boolean deleteMe = false;
     public String type, number, arriving, destination;
-    public Boolean delay = false;
+    public Boolean delay = false, addinfo = false;
+    private RequestQueue queue;
+    private Context context;
     public Integer arrivingseconds;
 
     Departure(String raw) {
@@ -24,14 +39,13 @@ public class Departure {
         }
     }
 
-    Departure(String destination, String from, String time) {
+    Departure(Context context, RequestQueue queue, String destination, String number, String time) {
+        this.context = context;
+        this.queue = queue;
         type = "train";
-        number = "ELR";
-        destination = destination.split("-")[1].trim();
-        if (destination.toLowerCase().equals(from.toLowerCase())) {
-            deleteMe = true;
-            return;
-        }
+        //this.number = "ELR";
+        this.number = number;
+        addinfo = true;
         arrivingseconds = convertSeconds(time);
         //TODO: THIS WILL LAST ONLY UNTIL SPRING DEAL WITH DST AND TIMEZONES
         long delaydelt = (((System.currentTimeMillis()/1000)+7200)%86400) - arrivingseconds;
@@ -41,8 +55,52 @@ public class Departure {
         } else if (delaydelt > 30){
             delay = true;
         }
+        //this.addinfo = "This is a train number " + number + " and we can request its route through Elron V1";
         this.destination = destination;
         arriving = time;
+    }
+
+    private Departure(String arriving, String destination, Boolean delay) {
+        this.arriving = arriving;
+        this.destination = destination;
+        this.delay = delay;
+    }
+
+    public void getInfo(final OnInfoLoadedListener listener) {
+        if (!addinfo)
+            return;
+        String url = "https://elron.ee/api/v1/trip?id=" + number;
+        JsonObjectRequest jsObjRequest = new JsonObjectRequest(Request.Method.GET, url,null,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        try {
+                            ArrayList<Departure> result = new ArrayList<>();
+                            JSONArray stops = response.getJSONArray("data");
+                            for (int i=0; i < stops.length(); i++) {
+                                JSONObject stop = stops.getJSONObject(i);
+                                if (!stop.getString("tegelik_aeg").isEmpty()) {
+                                    result.add(new Departure(stop.getString("tegelik_aeg"), stop.getString("peatus"), true));
+                                } else {
+                                    result.add(new Departure(stop.getString("plaaniline_aeg"), stop.getString("peatus"), false));
+                                }
+                            }
+                            listener.onInfoLoaded(result);
+                        } catch (Exception e) {
+                            listener.onInfoLoaded(context.getResources().getString(R.string.error_elron_parse));
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                listener.onInfoLoaded(context.getResources().getString(R.string.error_elron_down));
+            }
+        });
+        queue.add(jsObjRequest);
+    }
+
+    public interface OnInfoLoadedListener {
+        void onInfoLoaded(Object result);
     }
 
     @SuppressLint("DefaultLocale")

@@ -17,6 +17,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -50,6 +51,25 @@ class MapManager {
 
     public interface OnMapStatusListener {
         void onMapStatus(Integer status);
+    }
+
+    Boolean SetCamera(Integer id) {
+        try {
+            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(availablevehicles[id].marker.getPosition(), 15.5f));
+            availablevehicles[id].marker.showInfoWindow();
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    Boolean SetCamera(LatLng loc) {
+        try {
+            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(loc, 15.5f));
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
 
@@ -109,6 +129,7 @@ class MapManager {
                         try {
                             JSONArray trains = response.getJSONArray("data");
                             for (int i=0; i < trains.length(); i++) {
+                                Log.w("DEBUG", String.valueOf(i)); //catch train crashes
                                 setVehicle(new Vehicle(trains.getJSONObject(i)));
                             }
                             onMapStatusListener.onMapStatus(TRAIN_OK);
@@ -169,7 +190,11 @@ class MapManager {
                 this.number = unparsed.getString("reis");
                 this.longitude = unparsed.getDouble("longitude");
                 this.latitude = unparsed.getDouble("latitude");
-                this.rotation = unparsed.getInt("rongi_suund");
+                try {
+                    this.rotation = unparsed.getInt("rongi_suund");
+                } catch (Exception e) {
+                    this.rotation = 0;
+                }
                 this.title = unparsed.getString("liin");
                 this.info = context.getResources().getString(R.string.arrives_cont) + unparsed.getString("reisi_lopp_aeg");// + "\nSpeed: " + unparsed.getString("kiirus")+"km/h";
             } catch (Exception e) {
@@ -199,6 +224,12 @@ class MapManager {
                     iconbase = R.drawable.ic_map_red;
                     break;
             }
+
+
+            //marker = googleMap.addGroundOverlay(new GroundOverlayOptions()
+                    //.image(generateIcon(iconbase, number))
+                    //.position(new LatLng(latitude, longitude), 80f));
+
 
             marker = googleMap.addMarker(new MarkerOptions()
                     .icon(generateIcon(iconbase, number))

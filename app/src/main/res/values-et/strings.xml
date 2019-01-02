@@ -6,6 +6,7 @@
     <string name="navigation_map">Kaart</string>
     <string name="navigation_search">Otsing</string>
 
+    <string name="error_location">Teie asukoha otsing ebaõnnestus</string>
     <string name="error_big">Väljumiste laadimine ebaõnnestus</string>
     <string name="error_bus">Reaalajas busside väljumised pole kättesaadavad</string>
     <string name="error_train">Reaalajas rongide väljumised pole kättesaadavad</string>
@@ -13,6 +14,7 @@
     <string name="error_name">Viga</string>
     <string name="error_retry">Proovi uuesti</string>
     <string name="error_unsupported">Pole TLT ega Elroni peatus</string>
+    <string name="error_nostops">Ei leidnud peatusi teit ümber</string>
     <string name="error_save">Peatuste salvestamine ebaõnnestus</string>
     <string name="error_elron_down">Viga ühendusel Elroni veebilehega</string>
     <string name="error_elron_parse">Viga Elroni andmete lugemises</string>
@@ -21,7 +23,10 @@
 
     <string name="search_hint">Peatuse nimi</string>
     <string name="arrives_cont">Saabub:\u0020</string>
+    <string name="route_info">Sõiduplaan</string>
     <string name="loading">Allalaadimine</string>
+    <string name="show_on_map">Näita kaardil</string>
+    <string name="close">OK</string>
     <string name="no_departures">Väljumised puuduvad</string>
 
     <string name="setup_welcome">Tere tulemast Tallinna Transpordisse</string>

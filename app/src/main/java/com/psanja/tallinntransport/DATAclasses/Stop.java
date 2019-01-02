@@ -2,6 +2,7 @@ package com.psanja.tallinntransport.DATAclasses;
 
 import android.content.Context;
 
+import com.android.volley.RequestQueue;
 import com.psanja.tallinntransport.R;
 
 import org.json.JSONArray;
@@ -16,10 +17,12 @@ public class Stop {
     public String name, status;
     private Integer limit;
     private Context context;
+    private RequestQueue queue;
     public int sources = 1;
     public ArrayList<Departure> departures = new ArrayList<>();
 
-    public Stop(String name, Integer limit, Context context) {
+    public Stop(RequestQueue queue, String name, Integer limit, Context context) {
+        this.queue = queue;
         this.name = name;
         this.limit = limit;
         this.context = context;
@@ -48,7 +51,10 @@ public class Stop {
             for (int i = 0; i < data.length(); i++) {
                 JSONObject dep = data.getJSONObject(i);
                 if (dep.getString("tegelik_aeg").isEmpty()) {
-                    Departure newitem = new Departure(dep.getString("liin"), name, dep.getString("plaaniline_aeg"));
+                    String dest = dep.getString("liin").split("-")[1].trim();
+                    if (dest.toLowerCase().equals(name.toLowerCase()))
+                        continue;
+                    Departure newitem = new Departure(context, queue, dest, dep.getString("reis"), dep.getString("plaaniline_aeg"));
                     if (!newitem.deleteMe) {
                         departures.add(newitem);
                     }

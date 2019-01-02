@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 class StopsManager {
@@ -43,7 +44,7 @@ class StopsManager {
         void onReport(Integer status);
     }
 
-    public void TryLoadStops() {
+    void TryLoadStops() {
         try {
             FileInputStream fs = context.openFileInput("stops");
             ObjectInputStream ss = new ObjectInputStream(fs);
@@ -71,66 +72,85 @@ class StopsManager {
     }
 
     void get(final String name, Integer limit, final DeparturesAdapter departuresAdapter) {
-        String[] siriids = stoplist.get(name.toLowerCase());
-        if (siriids != null) {
-            final Stop stop = new Stop(name, limit, context);
-            departuresAdapter.add(stop);
-            if (Arrays.asList(siriids).contains("-1")) {
-                Boolean isElronOnly = siriids.length == 1;
-                //TODO: potentially clean -1
-                JsonObjectRequest elronRequest = new JsonObjectRequest(Request.Method.GET, "https://elron.ee/api/v1/stop?stop="+name, null,
-                        new Response.Listener<JSONObject>() {
-                            @Override
-                            public void onResponse(JSONObject response) {
-                                try {
-                                    stop.addData(response.getJSONArray("data"));
-                                    departuresAdapter.notifyDataSetChanged();
-                                    stopsManagerReport.onReport(ALL_OK);
-                                } catch (Exception e) {
-                                    stopsManagerReport.onReport(REQUEST_ERROR);
-                                }
-                            }
-                        },
-                        new Response.ErrorListener() {
-                            @Override
-                            public void onErrorResponse(VolleyError error) {
-                                stopsManagerReport.onReport(REQUEST_ERROR);
-                            }
-                        });
-                if (!isElronOnly) {
-                    stop.sources++;
-                    queue.add(elronRequest);
-                } else  {
-                    queue.add(elronRequest);
-                    return;
+        try {
+            ArrayList<String> siriids = new ArrayList<>(Arrays.asList(stoplist.get(name.toLowerCase())));
+            if (siriids.size() > 0) {
+                final Stop stop = new Stop(queue, name, limit, context);
+                departuresAdapter.add(stop);
+                if (siriids.contains("-1")) {
+                    if (siriids.size() > 1) {
+                        siriids.remove("-1");
+                        stop.sources++;
+                        getElron(name, stop, departuresAdapter);
+                    } else {
+                        getElron(name, stop, departuresAdapter);
+                        return;
+                    }
                 }
+                getTLT(siriids, stop, departuresAdapter);
+            } else {
+                departuresAdapter.add(new Stop(name, context.getResources().getString(R.string.error_unsupported)));
             }
-
-            String url = "https://transport.tallinn.ee/siri-stop-departures.php?stopid=" + TextUtils.join(",", siriids);
-            StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
-                    new Response.Listener<String>() {
-                        @Override
-                        public void onResponse(String response) {
-                            stop.addData(response);
-                            departuresAdapter.notifyDataSetChanged();
-                            stopsManagerReport.onReport(ALL_OK);
-                        }
-                    },
-                    new Response.ErrorListener() {
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
-                            stopsManagerReport.onReport(REQUEST_ERROR);
-                        }
-                    });
-            queue.add(stringRequest);
-        } else {
+        } catch (Exception e) {
             departuresAdapter.add(new Stop(name, context.getResources().getString(R.string.error_unsupported)));
         }
     }
 
-    //TODO: implement uppercase
+    private void getTLT(List<String> siriids, final Stop stop, final DeparturesAdapter departuresAdapter) {
+
+        String url = "https://transport.tallinn.ee/siri-stop-departures.php?stopid=" + TextUtils.join(",", siriids);
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        stop.addData(response);
+                        departuresAdapter.notifyDataSetChanged();
+                        stopsManagerReport.onReport(ALL_OK);
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        stopsManagerReport.onReport(REQUEST_ERROR);
+                    }
+                });
+        queue.add(stringRequest);
+    }
+
+    private void getElron(final String name, final Stop stop, final DeparturesAdapter departuresAdapter) {
+        JsonObjectRequest elronRequest = new JsonObjectRequest(Request.Method.GET, "https://elron.ee/api/v1/stop?stop="+name, null,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        try {
+                            stop.addData(response.getJSONArray("data"));
+                            departuresAdapter.notifyDataSetChanged();
+                            stopsManagerReport.onReport(ALL_OK);
+                        } catch (Exception e) {
+                            stopsManagerReport.onReport(REQUEST_ERROR);
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        stopsManagerReport.onReport(REQUEST_ERROR);
+                    }
+                });
+        queue.add(elronRequest);
+    }
+
+    void NoStopsFound(DeparturesAdapter departuresAdapter) {
+        departuresAdapter.add(new Stop(context.getResources().getString(R.string.error_nostops), ""));
+    }
+
     ArrayList<String> GetStops() {
-        ArrayList<String> response = new ArrayList<>(stoplist.keySet());
+        ArrayList<String> response = new ArrayList<>();
+        for (String item : stoplist.keySet()) {
+            if (item != null) {
+                response.add(toUpperCase(item));
+            }
+        }
         Collections.sort(response, new Comparator<String>() {
             @Override
             public int compare(String o1, String o2) {
@@ -152,6 +172,6 @@ class StopsManager {
                 return value.toUpperCase();
             }
         }
-        return null;
+        return "";
     }
 }

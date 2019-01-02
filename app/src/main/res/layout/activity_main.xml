@@ -17,6 +17,18 @@
         android:elevation="4dp"/>
 
     <TextView
+        android:id="@+id/error_location"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/darkred"
+        android:textAlignment="center"
+        android:textColor="@color/white"
+        android:textSize="16sp"
+        android:padding="5sp"
+        android:text="@string/error_location"
+        android:visibility="gone"/>
+
+    <TextView
         android:id="@+id/error_big"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

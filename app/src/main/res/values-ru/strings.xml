@@ -6,6 +6,7 @@
     <string name="navigation_map">Карта</string>
     <string name="navigation_search">Поиск</string>
 
+    <string name="error_location">Не удалось определить ваше местоположение</string>
     <string name="error_big">Отправления недоступны</string>
     <string name="error_bus">Отправления автобусов в живом времени недоступны</string>
     <string name="error_train">Отправления поездов в живом времени недоступны</string>
@@ -13,6 +14,7 @@
     <string name="error_name">Ошибка</string>
     <string name="error_retry">Повторить</string>
     <string name="error_unsupported">Остановка не поддерживается</string>
+    <string name="error_nostops">Остановки вокруг вас не найдены</string>
     <string name="error_save">Ошибка при сохранении остановок в телефоне</string>
     <string name="error_elron_down">Ошибка при подключении к серверам ELRON</string>
     <string name="error_elron_parse">Ошибка при чтении данных с серверов ELRON</string>
@@ -21,7 +23,10 @@
 
     <string name="search_hint">Название остановки</string>
     <string name="arrives_cont">Прибывает:\u0020</string>
+    <string name="route_info">Маршрут</string>
     <string name="loading">Загрузка</string>
+    <string name="show_on_map">Показать на карте</string>
+    <string name="close">Закрыть</string>
     <string name="no_departures">Отправления отсустствуют</string>
 
     <string name="setup_welcome">Добро пожаловать в Транспорт Таллинна</string>

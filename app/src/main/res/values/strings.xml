@@ -6,6 +6,7 @@
     <string name="navigation_map">Live map</string>
     <string name="navigation_search">Search</string>
 
+    <string name="error_location">Failed to determine your location</string>
     <string name="error_big">Failed to load Departures</string>
     <string name="error_bus">Real-time bus departures are unavailable</string>
     <string name="error_train">Real-time train departures are unavailable</string>
@@ -13,6 +14,7 @@
     <string name="error_name">Error</string>
     <string name="error_retry">Retry</string>
     <string name="error_unsupported">Not TLT or Elron stop</string>
+    <string name="error_nostops">No stops found around you</string>
     <string name="error_save">Error saving stops to internal storage</string>
     <string name="error_elron_down">Error connecting to ELRON webserver</string>
     <string name="error_elron_parse">Error parsing response from ELRON webserver</string>
@@ -21,7 +23,10 @@
 
     <string name="search_hint">Stop name</string>
     <string name="arrives_cont">Arrives:\u0020</string>
+    <string name="route_info">Route info</string>
     <string name="loading">Loading</string>
+    <string name="show_on_map">Show on map</string>
+    <string name="close">Close</string>
     <string name="no_departures">No Departures</string>
 
     <string name="setup_welcome">Welcome to Tallinn Transport</string>

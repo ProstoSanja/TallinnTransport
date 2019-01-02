@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/recycler_holder"
     android:orientation="vertical"
     android:layout_width="match_parent"
@@ -44,6 +45,26 @@
             android:textSize="18sp"
             android:textAlignment="center"
             android:gravity="center"/>
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="12sp"
+            android:layout_weight="1"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/info_button"
+            style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:minWidth="0dp"
+            android:layout_gravity="center"
+            android:visibility="gone"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:insetLeft="0dp"
+            android:insetRight="0dp"
+            app:iconPadding="0dp"
+            app:icon="@drawable/ic_info"/>
 
     </LinearLayout>
 
