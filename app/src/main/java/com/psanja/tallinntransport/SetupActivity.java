@@ -15,6 +15,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.android.volley.toolbox.Volley;
+import com.psanja.tallinntransport.DATAclasses.StopIDs;
 
 import java.util.Map;
 
@@ -55,7 +56,7 @@ public class SetupActivity extends AppCompatActivity {
     private void DownloadStops() {
         new StopSetup(new StopSetup.OnResultListener() {
             @Override
-            public void onSuccess(Map<String, String[]> list) {
+            public void onSuccess(Map<String, StopIDs> list) {
                 DownloadComplete();
             }
 

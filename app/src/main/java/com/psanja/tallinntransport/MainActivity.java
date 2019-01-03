@@ -204,36 +204,51 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         navigation.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                int state = item.getItemId();
+                int newstate = item.getItemId();
 
-                if (state == currentsate)
+                if (newstate == currentsate)
                     return false;
+
+                if (newstate == R.id.navigation_ticket) {
+                    //setContentView(R.layout.activity_setup); LOL
+                }
 
                 setRefresh(false);
                 refresh.setVisibility(View.GONE);
                 mapview.setVisibility(View.GONE);
                 search.setVisibility(View.GONE);
-                if (currentsate != R.id.navigation_map) {
-                    dataBackup.put(currentsate, mainAdapter.backup());
-                }
-                if (state != R.id.navigation_map) {
-                    mainAdapter.tryRestore(dataBackup.get(state));
-                    refresh.setVisibility(View.VISIBLE);
-                }
 
-                if (state == R.id.navigation_search) {
-                    search.setVisibility(View.VISIBLE);
-                    search.requestFocus();
-                    toggleKeyboard(true);
-                } else {
-                    toggleKeyboard(false);
-                    search.clearFocus();
-                    if (state == R.id.navigation_map) {
+                //check old
+                switch (currentsate) {
+                    case R.id.navigation_map:
+                        break;
+                    default:
+                        dataBackup.put(currentsate, mainAdapter.backup());
+                        break;
+                }
+                //check new
+                switch (newstate) {
+                    case R.id.navigation_timetable:
+                        toggleKeyboard(false);
+                        mainAdapter.tryRestore(dataBackup.get(newstate));
+                        refresh.setVisibility(View.VISIBLE);
+                        search.clearFocus();
+                        break;
+                    case R.id.navigation_search:
+                        mainAdapter.tryRestore(dataBackup.get(newstate));
+                        search.setVisibility(View.VISIBLE);
+                        search.requestFocus();
+                        toggleKeyboard(true);
+                        refresh.setVisibility(View.VISIBLE);
+                        break;
+                    case R.id.navigation_map:
+                        toggleKeyboard(false);
                         mapview.setVisibility(View.VISIBLE);
-                    }
+                        search.clearFocus();
+                        break;
                 }
 
-                currentsate = state;
+                currentsate = newstate;
                 return true;
             }
         });

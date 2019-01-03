@@ -10,6 +10,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.psanja.tallinntransport.DATAclasses.Stop;
+import com.psanja.tallinntransport.DATAclasses.StopIDs;
 
 import org.json.JSONObject;
 
@@ -30,7 +31,7 @@ class StopsManager {
     private RequestQueue queue;
     private StopsManagerReport stopsManagerReport;
 
-    private Map<String, String[]> stoplist = new HashMap<>();
+    private Map<String, StopIDs> stoplist = new HashMap<>();
 
     StopsManager(Context context, RequestQueue queue, StopsManagerReport stopsManagerReport) {
         this.context = context;
@@ -48,7 +49,7 @@ class StopsManager {
         try {
             FileInputStream fs = context.openFileInput("stops");
             ObjectInputStream ss = new ObjectInputStream(fs);
-            stoplist = (Map<String, String[]>) ss.readObject();
+            stoplist = (Map<String, StopIDs>) ss.readObject();
             ss.close();
             stopsManagerReport.onReport(SETUP_OK);
         } catch (IOException | ClassNotFoundException e) {
@@ -59,7 +60,7 @@ class StopsManager {
     private void DownloadStops() {
         new StopSetup(new StopSetup.OnResultListener() {
             @Override
-            public void onSuccess(Map<String, String[]> list) {
+            public void onSuccess(Map<String, StopIDs> list) {
                 stoplist = list;
                 stopsManagerReport.onReport(SETUP_OK);
             }
@@ -73,21 +74,17 @@ class StopsManager {
 
     void get(final String name, Integer limit, final DeparturesAdapter departuresAdapter) {
         try {
-            ArrayList<String> siriids = new ArrayList<>(Arrays.asList(stoplist.get(name.toLowerCase())));
-            if (siriids.size() > 0) {
+            StopIDs siriids = stoplist.get(name.toLowerCase());
+            if (siriids.providers() > 0) {
                 final Stop stop = new Stop(queue, name, limit, context);
+                stop.sources = siriids.providers();
                 departuresAdapter.add(stop);
-                if (siriids.contains("-1")) {
-                    if (siriids.size() > 1) {
-                        siriids.remove("-1");
-                        stop.sources++;
-                        getElron(name, stop, departuresAdapter);
-                    } else {
-                        getElron(name, stop, departuresAdapter);
-                        return;
-                    }
+                if (siriids.isElron()) {
+                    getElron(name, stop, departuresAdapter);
                 }
-                getTLT(siriids, stop, departuresAdapter);
+                if (siriids.isTlt()) {
+                    getTLT(siriids.getTltIDs(), stop, departuresAdapter);
+                }
             } else {
                 departuresAdapter.add(new Stop(name, context.getResources().getString(R.string.error_unsupported)));
             }
@@ -96,7 +93,7 @@ class StopsManager {
         }
     }
 
-    private void getTLT(List<String> siriids, final Stop stop, final DeparturesAdapter departuresAdapter) {
+    private void getTLT(String[] siriids, final Stop stop, final DeparturesAdapter departuresAdapter) {
 
         String url = "https://transport.tallinn.ee/siri-stop-departures.php?stopid=" + TextUtils.join(",", siriids);
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,

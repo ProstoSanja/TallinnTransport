@@ -5,6 +5,7 @@
     <string name="navigation_timetable">Väljumised</string>
     <string name="navigation_map">Kaart</string>
     <string name="navigation_search">Otsing</string>
+    <string name="navigation_ticket">Piletid</string>
 
     <string name="error_location">Teie asukoha otsing ebaõnnestus</string>
     <string name="error_big">Väljumiste laadimine ebaõnnestus</string>

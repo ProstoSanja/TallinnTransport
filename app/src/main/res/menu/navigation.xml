@@ -15,4 +15,9 @@
         android:id="@+id/navigation_search"
         android:icon="@drawable/ic_nav_search"
         android:title="@string/navigation_search" />
+
+    <item
+        android:id="@+id/navigation_ticket"
+        android:icon="@drawable/ic_nav_ticket"
+        android:title="@string/navigation_ticket" />
 </menu>

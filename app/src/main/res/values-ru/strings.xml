@@ -5,6 +5,7 @@
     <string name="navigation_timetable">Расписание</string>
     <string name="navigation_map">Карта</string>
     <string name="navigation_search">Поиск</string>
+    <string name="navigation_ticket">Билеты</string>
 
     <string name="error_location">Не удалось определить ваше местоположение</string>
     <string name="error_big">Отправления недоступны</string>

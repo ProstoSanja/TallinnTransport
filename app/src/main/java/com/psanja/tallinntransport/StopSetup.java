@@ -6,11 +6,11 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.StringRequest;
+import com.psanja.tallinntransport.DATAclasses.StopIDs;
 
 import org.json.JSONArray;
-import org.json.JSONObject;
 
 import java.io.FileOutputStream;
 import java.io.ObjectOutputStream;
@@ -23,7 +23,7 @@ import java.util.Map;
 
 class StopSetup {
 
-    private Map<String, String[]> newstoplist = new HashMap<>();
+    private Map<String, StopIDs> newstoplist = new HashMap<>();
     private OnResultListener resultListener;
     private Context context;
     private RequestQueue queue;
@@ -36,7 +36,7 @@ class StopSetup {
     }
 
     public interface OnResultListener {
-        void onSuccess(Map<String, String[]> list);
+        void onSuccess(Map<String, StopIDs> list);
         void onError(String error);
     }
 
@@ -67,22 +67,19 @@ class StopSetup {
     }
 
     private void DownloadStopsELR() {
-        JsonObjectRequest elronRequest = new JsonObjectRequest(Request.Method.GET, "https://elron.ee/api/v1/stops", null,
-                new Response.Listener<JSONObject>() {
+        JsonArrayRequest elronRequest = new JsonArrayRequest(Request.Method.GET, "https://api.ridango.com/v2/64/intercity/originstops", null,
+                new Response.Listener<JSONArray>() {
                     @Override
-                    public void onResponse(JSONObject response) {
+                    public void onResponse(JSONArray response) {
                         try {
-                            JSONArray stops = response.getJSONArray("data");
-                            for (int i = 0; i < stops.length(); i++) {
-                                String stop = stops.getJSONObject(i).getString("peatus").toLowerCase();
-                                String[] tryget = newstoplist.get(stop);
-                                if (tryget != null) {
-                                    List<String> newids = new ArrayList<>(Arrays.asList(tryget));
-                                    newids.add("-1");
-                                    newstoplist.put(stop, newids.toArray(new String[0]));
-                                } else {
-                                    newstoplist.put(stop, new String[]{"-1"});
+                            for (int i = 0; i < response.length(); i++) {
+                                String stop = response.getJSONObject(i).getString("stop_name").toLowerCase();
+                                StopIDs tryget = newstoplist.get(stop);
+                                if (tryget == null) {
+                                    tryget = new StopIDs();
                                 }
+                                tryget.setElronID(response.getJSONObject(i).getString("stop_area_id"));
+                                newstoplist.put(stop, tryget); //todo: potentially redundant line
                             }
                             writeStops();
                         } catch (Exception e) {
@@ -118,13 +115,15 @@ class StopSetup {
     private void addBus(String[] data) {
         if (data.length > 5) {
             if (currentName != null) {
-                newstoplist.put(currentName, currentSiriIDs.toArray(new String[0]));
+                StopIDs newid = new StopIDs();
+                newid.setTltIDs(currentSiriIDs.toArray(new String[0]));
+                newstoplist.put(currentName, newid);
             }
             currentName = data[5].toLowerCase();
-            String[] tryget = newstoplist.get(currentName);
+            StopIDs tryget = newstoplist.get(currentName);
             currentSiriIDs = new ArrayList<>();
             if (tryget != null) {
-                currentSiriIDs.addAll(Arrays.asList(tryget));
+                currentSiriIDs.addAll(Arrays.asList(tryget.getTltIDs()));
             }
         }
         currentSiriIDs.add(data[1]);

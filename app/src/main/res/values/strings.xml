@@ -5,6 +5,7 @@
     <string name="navigation_timetable">Timetable</string>
     <string name="navigation_map">Live map</string>
     <string name="navigation_search">Search</string>
+    <string name="navigation_ticket">Tickets</string>
 
     <string name="error_location">Failed to determine your location</string>
     <string name="error_big">Failed to load Departures</string>
