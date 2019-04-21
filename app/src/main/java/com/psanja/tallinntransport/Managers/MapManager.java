@@ -1,4 +1,4 @@
-package com.psanja.tallinntransport;
+package com.psanja.tallinntransport.Managers;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -9,6 +9,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.util.Log;
 
+import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 
 import com.android.volley.Request;
@@ -17,6 +18,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptor;
@@ -24,13 +26,14 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.psanja.tallinntransport.R;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.Objects;
 
-class MapManager {
+public class MapManager {
 
     private final Handler mHandler = new Handler();
     private Vehicle[] availablevehicles = new Vehicle[15000];
@@ -38,22 +41,21 @@ class MapManager {
     private Context context;
     private RequestQueue queue;
     private boolean running;
-    private OnMapStatusListener onMapStatusListener;
+    private StatusManager statusManager;
 
-    MapManager(Context context, GoogleMap googleMap, RequestQueue queue, OnMapStatusListener onMapStatusListener) {
+    private CameraUpdate requestedplace;
+
+    public MapManager(Context context, RequestQueue queue, StatusManager statusManager) {
         this.context = context;
-        this.googleMap = googleMap;
         this.queue = queue;
-        this.onMapStatusListener = onMapStatusListener;
+        this.statusManager = statusManager;
     }
 
-    public final static int BUS_OK = 1, BUS_ERROR = 2, TRAIN_OK = 3, TRAIN_ERROR = 4;
-
-    public interface OnMapStatusListener {
-        void onMapStatus(Integer status);
+    public void setMap(GoogleMap googleMap) {
+        this.googleMap = googleMap;
     }
 
-    Boolean SetCamera(Integer id) {
+    public Boolean SetCamera(Integer id) {
         try {
             googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(availablevehicles[id].marker.getPosition(), 15.5f));
             availablevehicles[id].marker.showInfoWindow();
@@ -63,24 +65,27 @@ class MapManager {
         }
     }
 
-    Boolean SetCamera(LatLng loc) {
+    public Boolean SetCamera(LatLng loc, Float zoom) {
+        if (zoom == null)
+            zoom = 15.5f;
         try {
-            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(loc, 15.5f));
+            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(loc, zoom));
             return true;
         } catch (Exception e) {
+            requestedplace = CameraUpdateFactory.newLatLngZoom(loc, zoom);
             return false;
         }
     }
 
 
-    void start() {
+    public void start() {
         if (!running) {
             mHandler.post(mHandlerUpdate);
             running = true;
         }
     }
 
-    void stop() {
+    public void stop() {
         if (running) {
             mHandler.removeCallbacks(mHandlerUpdate);
             running = false;
@@ -89,11 +94,19 @@ class MapManager {
 
     private final Runnable mHandlerUpdate = new Runnable() {
         public void run() {
-            Log.w("DEBUG", "MAP UPDATE");
-
-            DownloadTLT();
-            DownloadElron();
-            mHandler.postDelayed(mHandlerUpdate, 10000);
+            if (googleMap != null) {
+                Log.w("DEBUG", "MAP UPDATE");
+                if (requestedplace != null) {
+                    googleMap.moveCamera(requestedplace);
+                    requestedplace = null;
+                }
+                DownloadTLT();
+                DownloadElron();
+                mHandler.postDelayed(mHandlerUpdate, 10000);
+            } else {
+                Log.w("DEBUG", "MAP RETRY");
+                mHandler.postDelayed(mHandlerUpdate, 1000);
+            }
         }
     };
 
@@ -103,9 +116,9 @@ class MapManager {
                     @Override
                     public void onResponse(String response) {
                         if (response.isEmpty()) {
-                            onMapStatusListener.onMapStatus(BUS_ERROR);
+                            statusManager.report(StatusManager.Status.MAP_BUS_ERROR);
                         } else {
-                            onMapStatusListener.onMapStatus(BUS_OK);
+                            statusManager.report(StatusManager.Status.MAP_BUS_OK);
                             for (String unparsedvehicle : response.split("\n")) {
                                 setVehicle(new Vehicle(unparsedvehicle));
                             }
@@ -115,7 +128,7 @@ class MapManager {
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError e) {
-                        onMapStatusListener.onMapStatus(BUS_ERROR);
+                        statusManager.report(StatusManager.Status.MAP_BUS_ERROR);
                     }
                 });
         queue.add(stringRequest);
@@ -129,19 +142,18 @@ class MapManager {
                         try {
                             JSONArray trains = response.getJSONArray("data");
                             for (int i=0; i < trains.length(); i++) {
-                                Log.w("DEBUG", String.valueOf(i)); //catch train crashes
                                 setVehicle(new Vehicle(trains.getJSONObject(i)));
                             }
-                            onMapStatusListener.onMapStatus(TRAIN_OK);
+                            statusManager.report(StatusManager.Status.MAP_TRAIN_OK);
                         } catch (Exception e) {
-                            onMapStatusListener.onMapStatus(TRAIN_ERROR);
+                            statusManager.report(StatusManager.Status.MAP_TRAIN_ERROR);
                         }
                     }
                 },
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        onMapStatusListener.onMapStatus(TRAIN_ERROR);
+                        statusManager.report(StatusManager.Status.MAP_TRAIN_ERROR);
                     }
             });
         queue.add(elronRequest);
@@ -199,7 +211,7 @@ class MapManager {
                 this.info = context.getResources().getString(R.string.arrives_cont) + unparsed.getString("reisi_lopp_aeg");// + "\nSpeed: " + unparsed.getString("kiirus")+"km/h";
             } catch (Exception e) {
                 e.printStackTrace();
-                onMapStatusListener.onMapStatus(TRAIN_ERROR);
+                statusManager.report(StatusManager.Status.MAP_TRAIN_ERROR);
             }
 
         }

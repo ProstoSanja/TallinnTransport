@@ -7,6 +7,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="20sp"
+    android:background="@color/colorPrimary"
     tools:context=".SetupActivity">
 
     <TextView
@@ -40,7 +41,7 @@
             tools:ignore="HardcodedText" />
 
         <TextView
-            android:id="@+id/down_text"
+            android:id="@+id/setup_down_text"
             android:layout_weight="3"
             android:layout_width="0dp"
             android:layout_height="match_parent"
@@ -51,10 +52,11 @@
         <!--android:drawableRight="@drawable/ic_done" -->
 
         <ProgressBar
-            android:id="@+id/down_progress"
+            android:id="@+id/setup_down_progress"
             android:layout_weight="1"
             android:layout_width="0dp"
-            android:layout_height="match_parent"/>
+            android:layout_height="match_parent"
+            android:indeterminateTint="@color/white"/>
 
 
     </LinearLayout>
@@ -75,7 +77,7 @@
             tools:ignore="HardcodedText" />
 
         <TextView
-            android:id="@+id/perm_text"
+            android:id="@+id/setup_perm_text"
             android:layout_weight="3"
             android:layout_width="0dp"
             android:layout_height="match_parent"
@@ -84,12 +86,14 @@
             android:textSize="16sp"
             android:text="@string/setup_2"/>
 
-        <Button
-            android:id="@+id/perm_button"
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/setup_perm_button"
             android:layout_weight="1"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:text="@string/setup_grant"/>
+            android:text="@string/setup_grant"
+            app:backgroundTint="@color/white"
+            style="@style/Widget.MaterialComponents.Button.TextButton"/>
 
 
     </LinearLayout>
@@ -99,11 +103,14 @@
         android:layout_height="0dp"
         android:layout_weight="1"/>
 
-    <Button
-        android:id="@+id/confirmsetup"
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/setup_confirmsetup"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:enabled="false"
-        android:text="@string/setup_start"/>
+        android:padding="@dimen/matgin"
+        android:text="@string/setup_start"
+        app:backgroundTint="@color/white"
+        style="@style/Widget.MaterialComponents.Button.TextButton"/>
 
 </LinearLayout>

@@ -1,9 +1,10 @@
-package com.psanja.tallinntransport;
+package com.psanja.tallinntransport.Adapters;
 
 import android.content.Context;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
+import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
@@ -15,6 +16,9 @@ import android.widget.TextView;
 
 import com.psanja.tallinntransport.DATAclasses.Departure;
 import com.psanja.tallinntransport.DATAclasses.Stop;
+import com.psanja.tallinntransport.MainActivity;
+import com.psanja.tallinntransport.Managers.StatusManager;
+import com.psanja.tallinntransport.R;
 
 import java.util.ArrayList;
 
@@ -22,7 +26,8 @@ public class DeparturesAdapter extends RecyclerView.Adapter<DeparturesAdapter.Vi
 
     private ArrayList<Stop> dataset = new ArrayList<>();
 
-    private Context context;
+    private FragmentActivity context;
+    private StatusManager statusManager;
 
     public Boolean isLive = true;
 
@@ -49,41 +54,30 @@ public class DeparturesAdapter extends RecyclerView.Adapter<DeparturesAdapter.Vi
     }
 
     // Provide a suitable constructor (depends on the kind of dataset)
-    DeparturesAdapter(Context context) {
+    public DeparturesAdapter(FragmentActivity context, StatusManager statusManager) {
         this.context = context;
+        this.statusManager = statusManager;
     }
 
-    Integer add(Stop stop) {
+    public Integer add(Stop stop) {
         dataset.add(stop);
         notifyDataSetChanged();
         return dataset.size()-1;
     }
-    void set(Integer index, Stop stop) {
+    public void set(Integer index, Stop stop) {
         dataset.set(index, stop);
         notifyDataSetChanged();
     }
-    void clear() {
+    public void clear() {
         dataset.clear();
         notifyDataSetChanged();
-    }
-
-    ArrayList<Stop> backup() {
-        return (ArrayList<Stop>) dataset.clone();
-    }
-    void tryRestore(ArrayList<Stop> data) {
-        if (data == null) {
-            dataset.clear();
-        } else {
-            dataset = data;
-            notifyDataSetChanged();
-        }
     }
 
     // Create new views (invoked by the layout manager)
     @Override
     @NonNull
     public DeparturesAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        LinearLayout v = (LinearLayout) LayoutInflater.from(parent.getContext()).inflate(R.layout.recycler_item, parent, false);
+        LinearLayout v = (LinearLayout) LayoutInflater.from(parent.getContext()).inflate(R.layout.item_stopdeparture, parent, false);
         return new ViewHolder(v);
     }
 
@@ -92,7 +86,7 @@ public class DeparturesAdapter extends RecyclerView.Adapter<DeparturesAdapter.Vi
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
-        Integer iteration = 0;
+        int iteration = 0;
         while (true) {
             Stop thisstop = dataset.get(iteration);
             if (position == 0) {
@@ -171,7 +165,7 @@ public class DeparturesAdapter extends RecyclerView.Adapter<DeparturesAdapter.Vi
 
         final AlertDialog alertDialog = new AlertDialog.Builder(context).create();
         final LayoutInflater inflater = ((MainActivity) context).getLayoutInflater();
-        final View layout = inflater.inflate(R.layout.info_holder, null);
+        final View layout = inflater.inflate(R.layout.dialog_routeinfo, null);
         layout.findViewById(R.id.info_closebutton).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -193,7 +187,7 @@ public class DeparturesAdapter extends RecyclerView.Adapter<DeparturesAdapter.Vi
                     final LinearLayout dep_holder = rootItem.findViewById(R.id.info_item_holder);
                     Boolean isInRoute = false;
                     for (Departure dep : parsedresult) {
-                        View dep_lay = inflater.inflate(R.layout.info_item, null);//layout, true);
+                        View dep_lay = inflater.inflate(R.layout.dialog_routeinfo_item, null);//layout, true);
                         ((TextView)dep_lay.findViewById(R.id.info_date)).setText(dep.arriving);
                         if (dep.delay) {
                             ((TextView)dep_lay.findViewById(R.id.info_date)).setTextColor(context.getResources().getColor(R.color.darkgreen));
@@ -207,7 +201,7 @@ public class DeparturesAdapter extends RecyclerView.Adapter<DeparturesAdapter.Vi
                         rootItem.findViewById(R.id.info_mapbutton).setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                if (((MainActivity) context).openMapAt(10000 + Integer.valueOf(item.number))) {
+                                if (statusManager.setmap(10000 + Integer.valueOf(item.number))) {
                                     alertDialog.dismiss();
                                 } else {
                                     rootItem.findViewById(R.id.info_mapbutton).setEnabled(false);

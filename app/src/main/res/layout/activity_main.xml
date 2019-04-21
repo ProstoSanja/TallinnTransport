@@ -8,13 +8,7 @@
     android:background="@color/white"
     android:orientation="vertical">
 
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary"
-        app:titleTextColor="@color/white"
-        android:elevation="4dp"/>
+    <include layout="@layout/toolbar"/>
 
     <TextView
         android:id="@+id/error_location"
@@ -62,48 +56,11 @@
         android:text="@string/error_train"
         android:visibility="gone"/>
 
-    <AutoCompleteTextView
-        android:id="@+id/search_name"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@drawable/input_search"
-        android:textColorHint="@color/light_grey"
-        android:textColor="@color/white"
-        android:textCursorDrawable="@drawable/cursor_search"
-        android:inputType="text"
-        android:imeOptions="actionDone"
-        android:visibility="gone"
-        android:hint="@string/search_hint"/>
-
-    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-        android:id="@+id/refresh"
+    <androidx.viewpager.widget.ViewPager
+        android:id="@+id/main_fragment_holder"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1">
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recycler_holder"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:scrollbars="vertical"/>
-
-    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
-
-    <FrameLayout
-        android:id="@+id/mapholder"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:visibility="gone">
-
-        <fragment
-            xmlns:map="http://schemas.android.com/apk/res-auto"
-            android:id="@+id/map"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:name="com.google.android.gms.maps.SupportMapFragment" />
-
-    </FrameLayout>
+        android:layout_weight="1"/>
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/navigation"

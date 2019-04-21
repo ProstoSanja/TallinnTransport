@@ -1,4 +1,4 @@
-package com.psanja.tallinntransport;
+package com.psanja.tallinntransport.Managers;
 
 import android.content.Context;
 
@@ -9,6 +9,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.psanja.tallinntransport.DATAclasses.StopIDs;
+import com.psanja.tallinntransport.R;
 
 import org.json.JSONArray;
 
@@ -21,14 +22,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-class StopSetup {
+public class StopSetup {
 
     private Map<String, StopIDs> newstoplist = new HashMap<>();
     private OnResultListener resultListener;
     private Context context;
     private RequestQueue queue;
 
-    StopSetup(OnResultListener resultListener, Context context, RequestQueue queue) {
+    public StopSetup(OnResultListener resultListener, Context context, RequestQueue queue) {
         this.resultListener = resultListener;
         this.context = context;
         this.queue = queue;

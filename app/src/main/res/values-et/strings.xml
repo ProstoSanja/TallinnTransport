@@ -21,7 +21,20 @@
     <string name="error_elron_parse">Viga Elroni andmete lugemises</string>
     <string name="error_tlt_down">Viga ühendusel TLT veebilehega</string>
     <string name="error_tlt_parse">Viga TLT andmete lugemises</string>
+    <string name="error_email">Vale email</string>
+    <string name="error_internet">Probleemid andmevahetusega, palun kontrollige interneti sidet</string>
 
+    <string name="error_payment_cart">Toimus viga pileti reserveerimisel, palume vabandust, palun prooviga uuesti algusest</string>
+    <string name="error_payment_cancelled">Ostmine ebaõnnestus või katkestatud</string>
+    <string name="error_payment_mismatched">TÄHELEPANU: Ostmine õnnestus, kuid äpp is saanud toimetada piletit. Me proovime saata seda teile emaili kaudu. \n Palun pange tähele detailid, et võtta meiega ühendust kui te ei saa pileti emaili kaudu</string>
+
+
+    <string name="success_payment">Pilet on edukalt ostetud</string>
+
+
+    <string name="stop_from">Lahkumine</string>
+    <string name="stop_to">Saabumine</string>
+    <string name="stop_date">Reisi päev</string>
     <string name="search_hint">Peatuse nimi</string>
     <string name="arrives_cont">Saabub:\u0020</string>
     <string name="route_info">Sõiduplaan</string>
@@ -29,6 +42,12 @@
     <string name="show_on_map">Näita kaardil</string>
     <string name="close">OK</string>
     <string name="no_departures">Väljumised puuduvad</string>
+    <string name="search">Otsi</string>
+    <string name="buy">Osta</string>
+    <string name="tc"><u>Tingimused</u></string>
+    <string name="noticket">Tere tulemast Elroni piletite betasse, siin te saate osta pileteid rongis reisimiseks! \n Praegu te saate osta ühe korra piletid kõikide Eesti jaamade vahel.</string>
+    <string name="deleteticket">Kustuta pilet</string>
+
 
     <string name="setup_welcome">Tere tulemast Tallinna Transpordisse</string>
     <string name="setup_1">Lõpetan andmete allalaadimine</string>

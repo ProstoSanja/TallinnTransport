@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_marginLeft="@dimen/matgin"
+    android:layout_marginTop="5sp"
+    android:layout_marginBottom="5sp"
+    android:layout_marginRight="@dimen/matgin"
+    android:minHeight="50dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="10sp"
+            android:paddingLeft="10sp"
+            android:paddingRight="10sp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/card_travel_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"
+                android:textSize="20sp" />
+
+            <TextView
+                android:id="@+id/card_travel_express"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="10sp"
+                android:textColor="#ff7700"
+                android:visibility="gone"
+                android:textSize="20sp"
+                android:text="EXPRESS"/>
+
+            <View
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="12dp"/>
+
+            <TextView
+                android:id="@+id/card_travel_price"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="20sp"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingLeft="10sp"
+            android:paddingRight="10sp"
+            android:paddingBottom="10sp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/card_travel_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/grey"/>
+
+            <View
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="12dp"/>
+
+            <TextView
+                android:id="@+id/card_travel_price_orig"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/grey"/>
+
+        </LinearLayout>
+
+        <ProgressBar
+            android:id="@+id/card_travel_expanded_loading"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:indeterminateOnly="true"
+            android:visibility="gone"
+            style="?android:attr/progressBarStyleHorizontal"/>
+
+        <LinearLayout
+            android:id="@+id/card_travel_expanded_area"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/card_travel_warning"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="10sp"
+                android:textColor="#ff2222"/>
+
+            <LinearLayout
+                android:id="@+id/card_travel_expanded_tickets_holder"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#f0f0f0"
+                android:padding="10sp"
+                android:orientation="vertical"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

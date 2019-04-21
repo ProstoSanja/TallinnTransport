@@ -1,0 +1,86 @@
+package com.psanja.tallinntransport;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.TextView;
+
+import com.google.gson.Gson;
+import com.psanja.tallinntransport.DATAclasses.PurchaseResponse;
+import com.psanja.tallinntransport.DATAclasses.Ticket;
+import com.psanja.tallinntransport.Fragments.TicketFragment;
+import com.psanja.tallinntransport.Utils.Utils;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.FragmentTransaction;
+
+public class ReceiverActivity extends AppCompatActivity {
+
+    Ticket ticket;
+
+    @Override
+    public void onBackPressed() {
+        //LUL, not this time
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_receiver);
+        setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
+
+        PurchaseResponse response = (new Gson()).fromJson(Utils.decodeJWT(this, getIntent().getData().getQueryParameter("result")), PurchaseResponse.class);
+        try {
+            ticket = Utils.getTicket(this);
+        } catch (Exception e) {
+            ticket = new Ticket();
+            Utils.showError(this, e);
+            //continued in savemismatch
+        }
+        //todo: remove !
+        if ("Y".equals(response.status)) {
+            if (ticket.cart_id == response.cart_id) {
+                ticket.isPurchased = true;
+                try {
+                    Utils.storeTicket(this, ticket);
+                } catch (Exception e) {
+                    Utils.showError(this, e);
+                    showError(R.string.error_payment_mismatched);
+                }
+                findViewById(R.id.receiver_success).setVisibility(View.VISIBLE);
+                displayTicket();
+            } else {
+                //todo: display ticket using number from JWT response, but because data is incorrect store it with ?? instead of actual data
+                showError(R.string.error_payment_mismatched);
+            }
+        } else {
+            showError(R.string.error_payment_cancelled);
+        }
+
+        findViewById(R.id.receiver_close).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
+            }
+        });
+
+    }
+
+    private void displayTicket() {
+
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+
+        TicketFragment fragment = new TicketFragment();
+        fragmentTransaction.replace(R.id.receiver_fragment_holder, fragment);
+        fragmentTransaction.commit();
+    }
+
+    private void showError(int id) {
+        TextView errorview = findViewById(R.id.errorbox);
+        errorview.setText(getResources().getString(id));
+        errorview.setVisibility(View.VISIBLE);
+    }
+}

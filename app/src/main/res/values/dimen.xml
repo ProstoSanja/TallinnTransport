@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="matgin">12sp</dimen>
+    <dimen name="matgin_half">6sp</dimen>
+</resources>

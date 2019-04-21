@@ -24,4 +24,9 @@
     <color name="darkred">#C02B1E</color>
     <color name="darkyellow">#CCB634</color>
     <color name="darkgreen">#0FAD03</color>
+
+    <color name="error_background">#a0ff8888</color>
+    <color name="error_background_outline">#ffff6666</color>
+    <color name="success_background">#a088ff88</color>
+    <color name="success_background_outline">#ff66ff66</color>
 </resources>

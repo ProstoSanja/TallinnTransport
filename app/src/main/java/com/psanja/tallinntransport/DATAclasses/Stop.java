@@ -39,7 +39,11 @@ public class Stop {
         responses[0] = null;
         for (String departure : responses) {
             if (departure != null && !departure.contains("ERROR") && !departure.contains("stop,")) {
-                departures.add(new Departure(departure));
+                try {
+                    departures.add(new Departure(departure));
+                } catch (Exception ignored) {
+
+                }
             }
         }
         CheckSort();

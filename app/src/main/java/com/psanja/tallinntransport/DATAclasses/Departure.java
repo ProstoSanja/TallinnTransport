@@ -47,9 +47,9 @@ public class Departure {
         this.number = number;
         addinfo = true;
         arrivingseconds = convertSeconds(time);
-        //TODO: THIS WILL LAST ONLY UNTIL SPRING DEAL WITH DST AND TIMEZONES
+        //TODO: THIS IS LANDLOCKED TO ESTONIA AKA GMT+2
         long delaydelt = (((System.currentTimeMillis()/1000)+7200)%86400) - arrivingseconds;
-        if (delaydelt > 600) { //delay 10 min
+        if (delaydelt > 1800) { //delay 30 min
             deleteMe = true;
             return;
         } else if (delaydelt > 30){

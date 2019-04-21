@@ -48,7 +48,7 @@
 
         <View
             android:layout_width="0dp"
-            android:layout_height="12sp"
+            android:layout_height="12dp"
             android:layout_weight="1"/>
 
         <com.google.android.material.button.MaterialButton
@@ -89,7 +89,7 @@
 
         <View
             android:layout_width="0sp"
-            android:layout_height="12sp"
+            android:layout_height="12dp"
             android:layout_weight="1"/>
 
         <TextView

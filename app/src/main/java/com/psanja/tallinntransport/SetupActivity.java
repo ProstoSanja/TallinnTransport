@@ -7,6 +7,7 @@ import androidx.core.app.ActivityCompat;
 
 import android.Manifest;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.View;
@@ -16,6 +17,7 @@ import android.widget.TextView;
 
 import com.android.volley.toolbox.Volley;
 import com.psanja.tallinntransport.DATAclasses.StopIDs;
+import com.psanja.tallinntransport.Managers.StopSetup;
 
 import java.util.Map;
 
@@ -31,24 +33,25 @@ public class SetupActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_setup);
 
-        confirm = findViewById(R.id.confirmsetup);
+        confirm = findViewById(R.id.setup_confirmsetup);
         confirm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                setResult(status);
-                finish();
+                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
             }
         });
-        downtext = findViewById(R.id.down_text);
-        permtext = findViewById(R.id.perm_text);
-        permbutton = findViewById(R.id.perm_button);
+        downtext = findViewById(R.id.setup_down_text);
+        permtext = findViewById(R.id.setup_perm_text);
+        permbutton = findViewById(R.id.setup_perm_button);
         permbutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 ActivityCompat.requestPermissions(SetupActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
             }
         });
-        downprogress = findViewById(R.id.down_progress);
+        downprogress = findViewById(R.id.setup_down_progress);
         DownloadStops();
 
     }

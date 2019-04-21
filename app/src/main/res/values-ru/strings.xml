@@ -21,6 +21,20 @@
     <string name="error_elron_parse">Ошибка при чтении данных с серверов ELRON</string>
     <string name="error_tlt_down">Ошибка при подключении к серверам TLT</string>
     <string name="error_tlt_parse">Ошибка при чтении данных с серверов TLT</string>
+    <string name="error_email">Неправильный емэйл</string>
+    <string name="error_internet">Запрос не удался, проверьте подключение к интернету</string>
+
+    <string name="error_payment_cart">Возникла ошибка во время выдачи билета, пожалуйста попробуйте повторить процесс сначала</string>
+    <string name="error_payment_cancelled">Оплата была отказана или отменена</string>
+    <string name="error_payment_mismatched">ВНИМАНИЕ: Платёж удался, но покакой-то причине приложение не получило билет. Мы попробуем отослать вам билет по емэйлу. \n Пожалуйста, также запишите эти данные чтобы связаться с поддержкой, в случае проблем</string>
+
+
+    <string name="success_payment">Ваш билет был успешно выдан</string>
+
+
+    <string name="stop_from">Отправление</string>
+    <string name="stop_to">Прибытие</string>
+    <string name="stop_date">Дата поездки</string>
 
     <string name="search_hint">Название остановки</string>
     <string name="arrives_cont">Прибывает:\u0020</string>
@@ -29,6 +43,11 @@
     <string name="show_on_map">Показать на карте</string>
     <string name="close">Закрыть</string>
     <string name="no_departures">Отправления отсустствуют</string>
+    <string name="search">Поиск</string>
+    <string name="buy">Купить</string>
+    <string name="tc"><u>Условия аферты</u></string>
+    <string name="noticket">Добро пожаловать в бета-тест покупеи билетов Elron! На данный момент возможно покупать разовые билеты между всеми станциями Эстонии.</string>
+    <string name="deleteticket">Удаоить билет</string>
 
     <string name="setup_welcome">Добро пожаловать в Транспорт Таллинна</string>
     <string name="setup_1">Заканчиваю скачивание данных</string>

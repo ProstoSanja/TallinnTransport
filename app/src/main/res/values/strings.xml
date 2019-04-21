@@ -21,7 +21,20 @@
     <string name="error_elron_parse">Error parsing response from ELRON webserver</string>
     <string name="error_tlt_down">Error connecting to TLT webserver</string>
     <string name="error_tlt_parse">Error parsing response from TLT webserver</string>
+    <string name="error_email">Invalid email</string>
+    <string name="error_internet">A web request has failed, please check your internet connection</string>
 
+    <string name="error_payment_cart">There has been an error while trying to request a ticket, we are sorry about this, please try again starting from beginning</string>
+    <string name="error_payment_cancelled">Payment has been refused or cancelled</string>
+    <string name="error_payment_mismatched">ATTENTION: Your payment has succeeded but for some reason app failed to receive a ticket. We will attempt to send you an email with the ticket. \n Please also note these details in order to contact customer support in case you dont receive your email</string>
+
+
+    <string name="success_payment">Your ticket has been successfully processed</string>
+
+
+    <string name="stop_from">Origin stop</string>
+    <string name="stop_to">Destination stop</string>
+    <string name="stop_date">Date of travel</string>
     <string name="search_hint">Stop name</string>
     <string name="arrives_cont">Arrives:\u0020</string>
     <string name="route_info">Route info</string>
@@ -29,6 +42,11 @@
     <string name="show_on_map">Show on map</string>
     <string name="close">Close</string>
     <string name="no_departures">No Departures</string>
+    <string name="search">Search</string>
+    <string name="buy">Buy</string>
+    <string name="tc"><u>Terms and Conditions</u></string>
+    <string name="noticket">Welcome to elron ticket beta, here you will be able to purchase tickets for train travel! \n Right now you can purchase any kind of one-time tickets for all the routes in Estonia.</string>
+    <string name="deleteticket">Delete ticket</string>
 
     <string name="setup_welcome">Welcome to Tallinn Transport</string>
     <string name="setup_1">Completing first time setup</string>

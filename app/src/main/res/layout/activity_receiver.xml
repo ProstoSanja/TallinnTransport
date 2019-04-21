@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/white"
+    tools:context=".ReceiverActivity">
+
+    <include layout="@layout/toolbar"/>
+
+    <include layout="@layout/item_errorbox"/>
+
+    <TextView
+        android:id="@+id/receiver_success"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:padding="@dimen/matgin"
+        android:layout_margin="@dimen/matgin"
+        android:drawableLeft="@drawable/ic_success"
+        android:gravity="center"
+        android:text="@string/success_payment"
+        android:background="@drawable/background_success"/>
+
+    <FrameLayout
+        android:id="@+id/receiver_fragment_holder"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"/>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/receiver_close"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/matgin"
+        style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+        android:text="@string/close"/>
+
+</LinearLayout>
