@@ -1,6 +1,7 @@
 package com.psanja.tallinntransport.DATAclasses;
 
 import com.google.gson.annotations.SerializedName;
+import com.psanja.tallinntransport.Utils.Utils;
 
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
@@ -15,9 +16,9 @@ public class Ticket implements Serializable {
     public int price_id;
 
     @SerializedName("name")
-    public String name_en;
-    public String name_et;
-    public String name_ru;
+    private String name_en;
+    private String name_et;
+    private String name_ru;
     @SerializedName("product_type")
     public String product_type;
     @SerializedName("product_id")
@@ -108,6 +109,10 @@ public class Ticket implements Serializable {
 
     private String minutesToTime(int minutes) {
         return String.format("%02d:%02d", minutes/60, minutes%60);
+    }
+
+    public String getName() {
+        return Utils.getLangMessage(name_ru, name_et, name_en);
     }
 
     public class TicketPriceProperty implements Serializable {

@@ -32,20 +32,24 @@
     <string name="success_payment">Ваш билет был успешно выдан</string>
 
 
+    <string name="price_train">Цена в поезде: %s</string>
+    <string name="route_time">Время в пути: %s</string>
+    <string name="express">ЭКСПРЕСС</string>
     <string name="stop_from">Отправление</string>
     <string name="stop_to">Прибытие</string>
     <string name="stop_date">Дата поездки</string>
-
     <string name="search_hint">Название остановки</string>
     <string name="arrives_cont">Прибывает:\u0020</string>
     <string name="route_info">Маршрут</string>
     <string name="loading">Загрузка</string>
     <string name="show_on_map">Показать на карте</string>
     <string name="close">Закрыть</string>
+    <string name="email">Емэйл</string>
     <string name="no_departures">Отправления отсустствуют</string>
     <string name="search">Поиск</string>
     <string name="buy">Купить</string>
-    <string name="tc"><u>Условия аферты</u></string>
+    <string name="tc"><u>Условиями аферты</u></string>
+    <string name="tc_hint">Покупая билет вы соглашаетесь с</string>
     <string name="noticket">Добро пожаловать в бета-тест покупеи билетов Elron! На данный момент возможно покупать разовые билеты между всеми станциями Эстонии.</string>
     <string name="deleteticket">Удаоить билет</string>
 

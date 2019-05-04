@@ -82,10 +82,10 @@ public class TravelAdapter extends RecyclerView.Adapter<TravelAdapter.ViewHolder
             holder.express.setVisibility(View.GONE);
         }
         holder.price.setText(thisTicket.quick_product.getPrice());
-        holder.price_orig.setText("Price in train: " + thisTicket.quick_product.getLocationPrice());
+        holder.price_orig.setText(String.format(context.getResources().getString(R.string.price_train), thisTicket.quick_product.getLocationPrice()));
         holder.expand_area.setVisibility(View.GONE);
         if (thisTicket.warning.size() > 0) {
-            holder.warning.setText(thisTicket.warning.get(0).message_en); //todo:
+            holder.warning.setText(thisTicket.warning.get(0).getMessage()); //todo:
             holder.warning.setVisibility(View.VISIBLE);
         } else {
             holder.warning.setText(null);
@@ -121,7 +121,7 @@ public class TravelAdapter extends RecyclerView.Adapter<TravelAdapter.ViewHolder
                     for (final Ticket ticket : thisTrip.priceList) {
 
                         View ticketview = inflater.inflate(R.layout.card_travel_priceitem, holder.expand_area, false);
-                        ((TextView) ticketview.findViewById(R.id.card_travel_priceitem_name)).setText(ticket.name_en);
+                        ((TextView) ticketview.findViewById(R.id.card_travel_priceitem_name)).setText(ticket.getName());
 
                         Button ticketbutton = ticketview.findViewById(R.id.card_travel_priceitem_button);
 

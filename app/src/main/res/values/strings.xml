@@ -6,6 +6,7 @@
     <string name="navigation_map">Live map</string>
     <string name="navigation_search">Search</string>
     <string name="navigation_ticket">Tickets</string>
+    <string name="toolbar_settings">Settings</string>
 
     <string name="error_location">Failed to determine your location</string>
     <string name="error_big">Failed to load Departures</string>
@@ -32,6 +33,9 @@
     <string name="success_payment">Your ticket has been successfully processed</string>
 
 
+    <string name="price_train">Price in train: %s</string>
+    <string name="route_time">Route time: %s</string>
+    <string name="express">EXPRESS</string>
     <string name="stop_from">Origin stop</string>
     <string name="stop_to">Destination stop</string>
     <string name="stop_date">Date of travel</string>
@@ -41,11 +45,15 @@
     <string name="loading">Loading</string>
     <string name="show_on_map">Show on map</string>
     <string name="close">Close</string>
+    <string name="email">Email</string>
     <string name="no_departures">No Departures</string>
     <string name="search">Search</string>
     <string name="buy">Buy</string>
     <string name="tc"><u>Terms and Conditions</u></string>
-    <string name="noticket">Welcome to elron ticket beta, here you will be able to purchase tickets for train travel! \n Right now you can purchase any kind of one-time tickets for all the routes in Estonia.</string>
+    <string name="tc_hint">By buying a ticket you agree with</string>
+    <string name="noticket">Welcome to elron ticket beta! \n
+        Here you can purchase tickets for train travel. \n
+        Right now you can purchase any direct one-time ticket on all Estonian routes.</string>
     <string name="deleteticket">Delete ticket</string>
 
     <string name="setup_welcome">Welcome to Tallinn Transport</string>

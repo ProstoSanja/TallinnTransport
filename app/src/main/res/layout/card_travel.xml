@@ -38,7 +38,7 @@
                 android:textColor="#ff7700"
                 android:visibility="gone"
                 android:textSize="20sp"
-                android:text="EXPRESS"/>
+                android:text="@string/express"/>
 
             <View
                 android:layout_width="0dp"

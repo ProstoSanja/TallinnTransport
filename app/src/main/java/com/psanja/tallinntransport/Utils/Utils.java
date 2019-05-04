@@ -14,6 +14,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.Locale;
 
 public class Utils {
 
@@ -64,7 +65,7 @@ public class Utils {
     }
 
     public static void populateTicket(View holder, Ticket ticket) {
-        ((TextView) holder.findViewById(R.id.ticket_title)).setText(ticket.name_en);
+        ((TextView) holder.findViewById(R.id.ticket_title)).setText(ticket.getName());
         ((TextView) holder.findViewById(R.id.ticket_price)).setText(ticket.getPrice());
         ((TextView) holder.findViewById(R.id.ticket_departure_time)).setText(ticket.getOriginTime());
         ((TextView) holder.findViewById(R.id.ticket_destination_time)).setText(ticket.getDestinationTime());
@@ -73,7 +74,16 @@ public class Utils {
         ((TextView) holder.findViewById(R.id.ticket_departure_zone)).setText(ticket.origin_zone_name);
         ((TextView) holder.findViewById(R.id.ticket_destination_zone)).setText(ticket.destination_zone_name);
         ((TextView) holder.findViewById(R.id.ticket_tripdate)).setText(ticket.formatteddate);
-        ((TextView) holder.findViewById(R.id.ticket_triptime)).setText("Route time "+ ticket.getTripTime());
+        ((TextView) holder.findViewById(R.id.ticket_triptime)).setText(String.format(holder.getResources().getString(R.string.route_time),ticket.getTripTime()));
     }
 
+    public static String getLangMessage(String ru, String et, String other) {
+        switch (Locale.getDefault().getLanguage()) {
+            case "ru":
+                return ru;
+            case "et":
+                return et;
+        }
+        return other;
+    }
 }

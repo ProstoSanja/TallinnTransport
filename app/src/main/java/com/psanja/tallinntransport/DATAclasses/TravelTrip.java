@@ -7,9 +7,11 @@ import com.android.volley.VolleyError;
 import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
 import com.psanja.tallinntransport.Utils.GsonRequest;
+import com.psanja.tallinntransport.Utils.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class TravelTrip {
 
@@ -121,6 +123,9 @@ public class TravelTrip {
 
         TravelTripMessage() {
 
+        }
+        public String getMessage() {
+            return Utils.getLangMessage(message_ru, message_et, message_en);
         }
     }
 

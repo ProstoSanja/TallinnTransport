@@ -17,7 +17,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/matgin"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-        android:hint="Email">
+        android:hint="@string/email">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/purchase_email"
@@ -46,7 +46,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:text="By buying a ticket you agree with:"/>
+        android:text="@string/tc_hint"/>
     <TextView
         android:id="@+id/purchase_tc"
         android:layout_width="wrap_content"
@@ -58,7 +58,6 @@
     <com.google.android.material.button.MaterialButton
         android:id="@+id/purchase_buy"
         style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
-        android:enabled="false"
         android:layout_margin="@dimen/matgin"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

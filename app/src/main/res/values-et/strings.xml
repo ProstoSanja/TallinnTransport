@@ -32,6 +32,9 @@
     <string name="success_payment">Pilet on edukalt ostetud</string>
 
 
+    <string name="price_train">Hind rongis: %s</string>
+    <string name="route_time">Sõidu aeg: %s</string>
+    <string name="express">EKSPRESS</string>
     <string name="stop_from">Lahkumine</string>
     <string name="stop_to">Saabumine</string>
     <string name="stop_date">Reisi päev</string>
@@ -40,12 +43,16 @@
     <string name="route_info">Sõiduplaan</string>
     <string name="loading">Allalaadimine</string>
     <string name="show_on_map">Näita kaardil</string>
-    <string name="close">OK</string>
+    <string name="close">Sulge</string>
+    <string name="email">Email</string>
     <string name="no_departures">Väljumised puuduvad</string>
     <string name="search">Otsi</string>
     <string name="buy">Osta</string>
-    <string name="tc"><u>Tingimused</u></string>
-    <string name="noticket">Tere tulemast Elroni piletite betasse, siin te saate osta pileteid rongis reisimiseks! \n Praegu te saate osta ühe korra piletid kõikide Eesti jaamade vahel.</string>
+    <string name="tc"><u>Ostu tinginustega</u></string>
+    <string name="tc_hint">Pileti ostes, te nõustute</string>
+    <string name="noticket">Tere tulemast Elroni piletite betasse! \n
+        Siin te saate osta pileteid rongis reisimiseks. \n
+        Praegu on võimalik osta otsesed ühe korra piletid kõikide Eesti jaamade vahel.</string>
     <string name="deleteticket">Kustuta pilet</string>
 
 

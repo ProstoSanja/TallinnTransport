@@ -27,6 +27,7 @@ import com.psanja.tallinntransport.Managers.StatusManager;
 import com.psanja.tallinntransport.Managers.StopsManager;
 import com.psanja.tallinntransport.R;
 import com.psanja.tallinntransport.Utils.GsonRequest;
+import com.psanja.tallinntransport.Utils.Keyboard;
 import com.psanja.tallinntransport.Utils.Utils;
 
 import java.util.Calendar;
@@ -131,6 +132,7 @@ public class TravelFragment extends Fragment {
         holder.findViewById(R.id.travel_go).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Keyboard.hide(context, view_destination);
                 fetchroutes();
             }
         });

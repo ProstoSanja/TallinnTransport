@@ -94,6 +94,12 @@ public class PurchaseFragment extends Fragment implements PaymentFragment.OnPaym
         view_loading = holder.findViewById(R.id.purchase_loading);
         view_errorbox = holder.findViewById(R.id.errorbox);
         view_paybutton = holder.findViewById(R.id.purchase_buy);
+        view_paybutton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startPurchasePrep();
+            }
+        });
 
         holder.findViewById(R.id.purchase_tc).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -115,6 +121,7 @@ public class PurchaseFragment extends Fragment implements PaymentFragment.OnPaym
             view_email.setError(getResources().getString(R.string.error_email));
             return;
         }
+        view_paybutton.setEnabled(false);
         view_email.setError(null);
         view_email.setEnabled(false);
         view_errorbox.setVisibility(View.GONE);
@@ -194,15 +201,15 @@ public class PurchaseFragment extends Fragment implements PaymentFragment.OnPaym
                     @Override
                     public void onResponse(final PurchaseMethod[] response) {
                         view_loading.setVisibility(View.GONE);
+                        final PaymentFragment pf = new PaymentFragment(response, PurchaseFragment.this);
+                        view_paybutton.setEnabled(true);
                         view_paybutton.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-
-                                PaymentFragment pf = new PaymentFragment(response, PurchaseFragment.this);
                                 pf.show(context.getSupportFragmentManager(), "payment");
                             }
                         });
-                        view_paybutton.setEnabled(true);
+                        pf.show(context.getSupportFragmentManager(), "payment");
                     }
                 }, new Response.ErrorListener() {
             @Override

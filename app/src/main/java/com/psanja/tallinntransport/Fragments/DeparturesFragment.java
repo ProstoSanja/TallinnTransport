@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -73,7 +72,6 @@ public class DeparturesFragment extends Fragment implements SwipeRefreshLayout.O
     }
 
     public void tryFirstStart() {
-        Log.w("DEBUG", String.valueOf(amIsearch) + String.valueOf(start));
         if (start < 1) {
             start+=1;
             return;
@@ -114,6 +112,14 @@ public class DeparturesFragment extends Fragment implements SwipeRefreshLayout.O
 
         if (amIsearch) {
             search = holder.findViewById(R.id.departures_search);
+            search.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (search.getText().toString().trim().length() > 1) {
+                        search.showDropDown();
+                    }
+                }
+            });
             search.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -126,6 +132,7 @@ public class DeparturesFragment extends Fragment implements SwipeRefreshLayout.O
                 public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                     if (actionId == EditorInfo.IME_ACTION_DONE && v.getText() != null) {
                         SearchStops(null);
+                        search.dismissDropDown();
                     }
                     return false;
                 }
