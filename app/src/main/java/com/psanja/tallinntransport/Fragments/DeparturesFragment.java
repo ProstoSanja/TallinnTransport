@@ -75,7 +75,7 @@ public class DeparturesFragment extends Fragment implements SwipeRefreshLayout.O
     public void tryFirstStart() {
         Log.w("DEBUG", String.valueOf(amIsearch) + String.valueOf(start));
         if (start < 1) {
-            start++;
+            start+=1;
             return;
         }
         if (amIsearch) {

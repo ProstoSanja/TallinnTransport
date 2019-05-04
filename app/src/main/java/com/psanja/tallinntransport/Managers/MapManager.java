@@ -1,5 +1,6 @@
 package com.psanja.tallinntransport.Managers;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -21,9 +22,12 @@ import com.android.volley.toolbox.StringRequest;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.psanja.tallinntransport.R;
@@ -33,10 +37,11 @@ import org.json.JSONObject;
 
 import java.util.Objects;
 
-public class MapManager {
+public class MapManager implements OnMapReadyCallback {
 
     private final Handler mHandler = new Handler();
     private Vehicle[] availablevehicles = new Vehicle[15000];
+    private SupportMapFragment mapfragment;
     private GoogleMap googleMap;
     private Context context;
     private RequestQueue queue;
@@ -45,10 +50,12 @@ public class MapManager {
 
     private CameraUpdate requestedplace;
 
-    public MapManager(Context context, RequestQueue queue, StatusManager statusManager) {
+    public MapManager(Context context, RequestQueue queue, StatusManager statusManager, SupportMapFragment mapfragment) {
         this.context = context;
         this.queue = queue;
         this.statusManager = statusManager;
+        this.mapfragment = mapfragment;
+        start();
     }
 
     public void setMap(GoogleMap googleMap) {
@@ -105,10 +112,28 @@ public class MapManager {
                 mHandler.postDelayed(mHandlerUpdate, 10000);
             } else {
                 Log.w("DEBUG", "MAP RETRY");
+                mapfragment.getMapAsync(MapManager.this);
                 mHandler.postDelayed(mHandlerUpdate, 1000);
             }
         }
     };
+
+
+    @SuppressLint("MissingPermission")
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        googleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(context, R.raw.map_style));
+        //googleMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
+        googleMap.setTrafficEnabled(true);
+        googleMap.setMyLocationEnabled(true);
+        googleMap.getUiSettings().setRotateGesturesEnabled(false);
+        googleMap.getUiSettings().setMyLocationButtonEnabled(true);
+        googleMap.getUiSettings().setMapToolbarEnabled(false);
+        googleMap.getUiSettings().setCompassEnabled(false);
+        googleMap.getUiSettings().setTiltGesturesEnabled(false);
+        this.googleMap = googleMap;
+        this.SetCamera(new LatLng(59.437060, 24.753406), 13f);
+    }
 
     private void DownloadTLT() {
         StringRequest stringRequest = new StringRequest(Request.Method.GET, "https://transport.tallinn.ee/gps.txt",

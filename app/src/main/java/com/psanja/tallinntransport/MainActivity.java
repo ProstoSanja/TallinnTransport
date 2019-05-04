@@ -1,7 +1,6 @@
 package com.psanja.tallinntransport;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -14,12 +13,9 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager.widget.ViewPager;
 
-import android.content.res.Configuration;
 import android.os.Bundle;
 
 import android.view.MenuItem;
@@ -28,15 +24,13 @@ import android.widget.TextView;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.MapStyleOptions;
 import com.psanja.tallinntransport.Fragments.DeparturesFragment;
 import com.psanja.tallinntransport.Fragments.TicketFragment;
 import com.psanja.tallinntransport.Managers.MapManager;
 import com.psanja.tallinntransport.Managers.StatusManager;
 import com.psanja.tallinntransport.Managers.StopsManager;
+import com.psanja.tallinntransport.Utils.Bullshit;
 import com.psanja.tallinntransport.Utils.Utils;
 
 
@@ -49,7 +43,7 @@ public class MainActivity extends AppCompatActivity implements StatusManager.OnS
     private StopsManager stopsManager;
     private MapManager mapManager;
 
-    private MyPageAdapter pageAdapter;
+    private Bullshit pageAdapter;
     ViewPager pager;
     private int lastid = -1;
 
@@ -96,37 +90,23 @@ public class MainActivity extends AppCompatActivity implements StatusManager.OnS
 
         DeparturesFragment depfragment = new DeparturesFragment();
         depfragment.SetupMe(queue, statusManager, stopsManager, false);
+        ///depfragment.setRetainInstance(true);
         fragments[0] = depfragment;
         DeparturesFragment depfragment2 = new DeparturesFragment();
         depfragment2.SetupMe(queue, statusManager, stopsManager, true);
+        //depfragment2.setRetainInstance(true);
         fragments[1] = depfragment2;
 
-        mapManager = new MapManager(MainActivity.this, queue, statusManager);
         SupportMapFragment mapfragment = SupportMapFragment.newInstance();
-        mapfragment.getMapAsync(new OnMapReadyCallback() {
-            @SuppressLint("MissingPermission")
-            @Override
-            public void onMapReady(GoogleMap googleMap) {
-                googleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(getApplicationContext(), R.raw.map_style));
-                //googleMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
-                googleMap.setTrafficEnabled(true);
-                googleMap.setMyLocationEnabled(true);
-                googleMap.getUiSettings().setRotateGesturesEnabled(false);
-                googleMap.getUiSettings().setMyLocationButtonEnabled(true);
-                googleMap.getUiSettings().setMapToolbarEnabled(false);
-                googleMap.getUiSettings().setCompassEnabled(false);
-                googleMap.getUiSettings().setTiltGesturesEnabled(false);
-                mapManager.setMap(googleMap);
-                mapManager.start();
-                mapManager.SetCamera(new LatLng(59.437060, 24.753406), 13f);
-            }
-        });
+        //mapfragment.setRetainInstance(true);
+        mapManager = new MapManager(MainActivity.this, queue, statusManager, mapfragment);
         fragments[2] = mapfragment;
 
         TicketFragment ticketFragment = new TicketFragment();
+        //ticketFragment.setRetainInstance(true);
         fragments[3] = ticketFragment;
 
-        pageAdapter = new MyPageAdapter(getSupportFragmentManager(), fragments);
+        pageAdapter = new Bullshit(getSupportFragmentManager(), fragments);
         pager = findViewById(R.id.main_fragment_holder);
         pager.setOffscreenPageLimit(3);
         pager.setAdapter(pageAdapter);
@@ -267,11 +247,6 @@ public class MainActivity extends AppCompatActivity implements StatusManager.OnS
         super.onDestroy();
     }
 
-    @Override
-    public void onConfigurationChanged(@NonNull Configuration newconfig) {
-        super.onConfigurationChanged(newconfig);
-    }
-
     public void selectTab(int id) {
         if (id != lastid) {
             lastid = id;
@@ -289,33 +264,6 @@ public class MainActivity extends AppCompatActivity implements StatusManager.OnS
                 case 3:
                     navigation.setSelectedItemId(R.id.navigation_ticket);
                     break;
-            }
-        }
-    }
-
-
-    class MyPageAdapter extends FragmentPagerAdapter {
-
-        private Fragment[] fragments;
-
-        MyPageAdapter(FragmentManager fm, Fragment[] fragments) {
-            super(fm);
-            this.fragments = fragments;
-        }
-
-        @NonNull
-        @Override
-        public Fragment getItem(int position) {
-            return fragments[position];
-        }
-
-
-        @Override
-        public int getCount() {
-            try {
-                return fragments.length;
-            } catch (Exception ignore) {
-                return 0;
             }
         }
     }
