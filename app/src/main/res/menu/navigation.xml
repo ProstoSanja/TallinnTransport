@@ -15,4 +15,9 @@
         android:id="@+id/navigation_map"
         android:icon="@drawable/ic_nav_map"
         android:title="@string/navigation_map" />
+
+    <item
+        android:id="@+id/navigation_ticket"
+        android:icon="@drawable/ic_nav_ticket"
+        android:title="@string/navigation_ticket" />
 </menu>

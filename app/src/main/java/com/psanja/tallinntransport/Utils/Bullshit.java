@@ -22,9 +22,12 @@ public class Bullshit extends PagerAdapter {
 
     private Fragment[] mFragments;
 
-    public Bullshit(@NonNull FragmentManager fm, Fragment[] fragments) {
+    public boolean betaenabled;
+
+    public Bullshit(@NonNull FragmentManager fm, Fragment[] fragments, boolean beta) {
         mFragmentManager = fm;
         mFragments = fragments;
+        betaenabled = beta;
     }
 
     /**
@@ -35,11 +38,16 @@ public class Bullshit extends PagerAdapter {
         return mFragments[position];
     }
 
+    public void setBeta(boolean beta) {
+        betaenabled = beta;
+        notifyDataSetChanged();
+    }
+
 
     @Override
     public int getCount() {
         try {
-            return mFragments.length;
+            return betaenabled ? mFragments.length : mFragments.length-1;
         } catch (Exception ignore) {
             return 0;
         }

@@ -7,8 +7,8 @@ android {
         minSdkVersion 23
         targetSdkVersion 28
         buildToolsVersion "28.0.3"
-        versionCode 18
-        versionName "3.5.beta2"
+        versionCode 19
+        versionName "3.5.RC1"
     }
     buildTypes {
         release {
