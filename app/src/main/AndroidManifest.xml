@@ -15,8 +15,8 @@
         android:theme="@style/FullTheme">
         <activity
             android:name=".MainActivity"
-            android:screenOrientation="sensorPortrait"
-            android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation">
+            android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation"
+            android:screenOrientation="sensorPortrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <action android:name="android.intent.action.VIEW" />
@@ -26,18 +26,18 @@
         </activity>
         <activity
             android:name=".SetupActivity"
-            android:screenOrientation="sensorPortrait"
             android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation"
-            android:noHistory="true"/>
+            android:noHistory="true"
+            android:screenOrientation="sensorPortrait" />
         <activity
             android:name=".TravelActivity"
-            android:screenOrientation="sensorPortrait"
             android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation"
-            android:noHistory="true"/>
+            android:noHistory="true"
+            android:screenOrientation="sensorPortrait" />
         <activity
             android:name=".ReceiverActivity"
-            android:screenOrientation="sensorPortrait"
-            android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation">
+            android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation"
+            android:screenOrientation="sensorPortrait">
             <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
 
@@ -63,6 +63,14 @@
                     android:host="tulemus"
                     android:scheme="tt" />
             </intent-filter>
+        </activity>
+        <activity
+            android:name=".SettingsActivity"
+            android:label="@string/settings"
+            android:parentActivityName=".MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.psanja.tallinntransport.MainActivity" />
         </activity>
 
         <meta-data

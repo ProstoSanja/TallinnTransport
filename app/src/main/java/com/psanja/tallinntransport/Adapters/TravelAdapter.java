@@ -85,7 +85,7 @@ public class TravelAdapter extends RecyclerView.Adapter<TravelAdapter.ViewHolder
         holder.price_orig.setText(String.format(context.getResources().getString(R.string.price_train), thisTicket.quick_product.getLocationPrice()));
         holder.expand_area.setVisibility(View.GONE);
         if (thisTicket.warning.size() > 0) {
-            holder.warning.setText(thisTicket.warning.get(0).getMessage()); //todo:
+            holder.warning.setText(thisTicket.warning.get(0).getMessage());
             holder.warning.setVisibility(View.VISIBLE);
         } else {
             holder.warning.setText(null);

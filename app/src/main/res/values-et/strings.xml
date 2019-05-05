@@ -63,4 +63,10 @@
     <string name="setup_start">Alusta</string>
 
     <string name="google_maps_key">AIzaSyDbzS8CBF-mAMWY7z-CE_QXC0JYvVy65V0</string>
+
+
+    <string name="settings">Sätted</string>
+    <string name="settings_ticket_beta">Elron Piletite Beta</string>
+    <string name="settings_ticket_beta_on">Palun saatke tagasisidet: alex@thatguyalex.com</string>
+    <string name="settings_ticket_beta_off">Vajutage osalemiseks</string>
 </resources>

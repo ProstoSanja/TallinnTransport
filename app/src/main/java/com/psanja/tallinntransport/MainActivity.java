@@ -3,6 +3,7 @@ package com.psanja.tallinntransport;
 import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import androidx.annotation.NonNull;
 
@@ -14,6 +15,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.preference.PreferenceManager;
 import androidx.viewpager.widget.ViewPager;
 
 import android.os.Bundle;
@@ -34,6 +36,10 @@ import com.psanja.tallinntransport.Managers.StopsManager;
 import com.psanja.tallinntransport.Utils.Bullshit;
 import com.psanja.tallinntransport.Utils.Utils;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.List;
+
 
 public class MainActivity extends AppCompatActivity implements StatusManager.OnStatusListener {
 
@@ -47,6 +53,8 @@ public class MainActivity extends AppCompatActivity implements StatusManager.OnS
     private Bullshit pageAdapter;
     ViewPager pager;
     private int lastid = -1;
+
+    private boolean betaenabled = false;
 
     private BottomNavigationView navigation;
     private TextView errorlocation, errorbig, errorbus, errortrain;
@@ -67,6 +75,8 @@ public class MainActivity extends AppCompatActivity implements StatusManager.OnS
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == 1) {
             finish();
+        } else {
+            super.onActivityResult(requestCode, resultCode, data);
         }
     }
 
@@ -87,25 +97,27 @@ public class MainActivity extends AppCompatActivity implements StatusManager.OnS
         stopsManager = new StopsManager(this, queue, statusManager);
 
 
-        Fragment[] fragments = new Fragment[4];
+        betaenabled = PreferenceManager.getDefaultSharedPreferences(getBaseContext()).getBoolean("elron_beta", false);
+        Fragment[] fragments = new Fragment[3];
+        if (betaenabled) {
+            fragments = new Fragment[4];
+        }
 
         DeparturesFragment depfragment = new DeparturesFragment();
         depfragment.SetupMe(queue, statusManager, stopsManager, false);
-        ///depfragment.setRetainInstance(true);
         fragments[0] = depfragment;
         DeparturesFragment depfragment2 = new DeparturesFragment();
         depfragment2.SetupMe(queue, statusManager, stopsManager, true);
-        //depfragment2.setRetainInstance(true);
         fragments[1] = depfragment2;
 
         SupportMapFragment mapfragment = SupportMapFragment.newInstance();
-        //mapfragment.setRetainInstance(true);
         mapManager = new MapManager(MainActivity.this, queue, statusManager, mapfragment);
         fragments[2] = mapfragment;
 
-        TicketFragment ticketFragment = new TicketFragment();
-        //ticketFragment.setRetainInstance(true);
-        fragments[3] = ticketFragment;
+        if (betaenabled) {
+            TicketFragment ticketFragment = new TicketFragment();
+            fragments[3] = ticketFragment;
+        }
 
         pageAdapter = new Bullshit(getSupportFragmentManager(), fragments);
         pager = findViewById(R.id.main_fragment_holder);
@@ -134,6 +146,12 @@ public class MainActivity extends AppCompatActivity implements StatusManager.OnS
         stopsManager.TryLoadStops();
 
         navigation = findViewById(R.id.navigation);
+        if (betaenabled) {
+            navigation.inflateMenu(R.menu.navigation_beta);
+        } else {
+            navigation.inflateMenu(R.menu.navigation);
+        }
+
         navigation.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -259,7 +277,7 @@ public class MainActivity extends AppCompatActivity implements StatusManager.OnS
         int id = item.getItemId();
 
         if (id == R.id.toolbar_settings) {
-
+            startActivity(new Intent(this, SettingsActivity.class));
             return true;
         }
 
