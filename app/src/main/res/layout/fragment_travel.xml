@@ -91,18 +91,40 @@
     <ProgressBar
         style="@style/Widget.AppCompat.ProgressBar.Horizontal"
         android:id="@+id/travel_loading"
-        android:visibility="invisible"
+        android:visibility="gone"
         android:indeterminate="true"
         android:layout_width="match_parent"
         android:layout_marginTop="-7dp"
         android:layout_marginBottom="-7dp"
         android:layout_height="wrap_content"/>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/travel_result"
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:scrollbars="vertical"/>
+        android:layout_weight="1">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/travel_result"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:scrollbars="vertical"/>
+
+        <LinearLayout
+            android:id="@+id/travel_tipholder"
+            android:layout_gravity="center"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <androidx.appcompat.widget.AppCompatImageView
+                app:srcCompat="@drawable/big_search"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+        </LinearLayout>
+
+
+    </FrameLayout>
 
 </LinearLayout>

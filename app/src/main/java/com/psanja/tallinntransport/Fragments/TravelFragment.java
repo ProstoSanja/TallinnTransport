@@ -56,6 +56,7 @@ public class TravelFragment extends Fragment {
     private Button view_date;
     private String reqdate;
     private View loading;
+    private LinearLayout tipholder;
 
     public TravelFragment() {
 
@@ -113,6 +114,7 @@ public class TravelFragment extends Fragment {
         view_date = holder.findViewById(R.id.travel_date);
 
         loading = holder.findViewById(R.id.travel_loading);
+        tipholder = holder.findViewById(R.id.travel_tipholder);
 
         stopsManager = new StopsManager(context, queue, new StatusManager(new StatusManager.OnStatusListener() {
             @Override
@@ -150,14 +152,16 @@ public class TravelFragment extends Fragment {
     }
 
     private void fetchroutes() {
-        travelAdapter.clear();
-        loading.setVisibility(View.VISIBLE);
         String origintext = view_origin.getText().toString().toLowerCase();
         String destinationtext = view_destination.getText().toString().toLowerCase();
         String origin = stopsManager.getElronIDs(origintext);
         String destination = stopsManager.getElronIDs(destinationtext);
         if (origin == null || destination == null)
             return;
+
+        travelAdapter.clear();
+        loading.setVisibility(View.VISIBLE);
+        tipholder.setVisibility(View.VISIBLE);
 
         TravelStub.TravelPayload payload = new TravelStub.TravelPayload(reqdate, origin, destination);
 
@@ -167,19 +171,24 @@ public class TravelFragment extends Fragment {
                 new Response.Listener<TravelStub.TravelResponse>() {
                     @Override
                     public void onResponse(TravelStub.TravelResponse response) {
+                        loading.setVisibility(View.GONE);
+                        if(response.journeys.size() == 0) {
+                            return;
+                        }
+                        tipholder.setVisibility(View.GONE);
                         for (TravelStub.TravelJourney journey : response.journeys) {
                             TravelTrip travelTrip = journey.trips.get(0);
                             travelTrip.queue = queue;
                             travelTrip.formatteddate = reqdate;
                             travelAdapter.add(travelTrip);
                         }
-                        loading.setVisibility(View.INVISIBLE);
                     }
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
                 Utils.showError(context, error);
-                loading.setVisibility(View.INVISIBLE);
+                loading.setVisibility(View.GONE);
+                tipholder.setVisibility(View.VISIBLE);
             }
         });
         queue.add(tripsrequest);
