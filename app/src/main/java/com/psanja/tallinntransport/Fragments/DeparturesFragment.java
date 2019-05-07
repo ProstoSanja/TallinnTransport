@@ -23,6 +23,7 @@ import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.psanja.tallinntransport.Adapters.DeparturesAdapter;
 import com.psanja.tallinntransport.Managers.StatusManager;
 import com.psanja.tallinntransport.Managers.StopsManager;
@@ -60,6 +61,8 @@ public class DeparturesFragment extends Fragment implements SwipeRefreshLayout.O
     private AutoCompleteTextView search;
     private DeparturesAdapter mainAdapter;
 
+    private FirebaseAnalytics mFirebaseAnalytics;
+
     public DeparturesFragment() {
         // Required empty public constructor
     }
@@ -95,6 +98,7 @@ public class DeparturesFragment extends Fragment implements SwipeRefreshLayout.O
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         context = requireActivity();
+        mFirebaseAnalytics = FirebaseAnalytics.getInstance(context);
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(context);
     }
 
@@ -228,6 +232,12 @@ public class DeparturesFragment extends Fragment implements SwipeRefreshLayout.O
         if (stop == null) {
             stop = search.getText().toString().trim();
         }
+
+        Bundle bundle = new Bundle();
+        bundle.putString(FirebaseAnalytics.Param.SEARCH_TERM, stop);
+        bundle.putString(FirebaseAnalytics.Param.ITEM_VARIANT, amIsearch ? "search" : "location");
+        mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SEARCH, bundle);
+
         mainAdapter.clear();
         stopsManager.get(stop, 100, mainAdapter);
         setRefresh(false);

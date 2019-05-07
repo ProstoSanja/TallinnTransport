@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.gson.Gson;
 import com.psanja.tallinntransport.DATAclasses.PurchaseResponse;
 import com.psanja.tallinntransport.DATAclasses.Ticket;
@@ -18,6 +19,7 @@ import androidx.fragment.app.FragmentTransaction;
 public class ReceiverActivity extends AppCompatActivity {
 
     Ticket ticket;
+    private FirebaseAnalytics mFirebaseAnalytics;
 
     @Override
     public void onBackPressed() {
@@ -30,6 +32,8 @@ public class ReceiverActivity extends AppCompatActivity {
         setContentView(R.layout.activity_receiver);
         setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
 
+        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
+
         PurchaseResponse response = (new Gson()).fromJson(Utils.decodeJWT(this, getIntent().getData().getQueryParameter("result")), PurchaseResponse.class);
         try {
             ticket = Utils.getTicket(this);
@@ -40,6 +44,7 @@ public class ReceiverActivity extends AppCompatActivity {
         }
         //todo: remove !
         if ("Y".equals(response.status)) {
+            mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.ECOMMERCE_PURCHASE, Utils.packTicket(ticket.origin_stop_name, ticket.destination_stop_name, ticket.formatteddate));
             if (ticket.cart_id == response.cart_id) {
                 ticket.isPurchased = true;
                 try {
@@ -48,13 +53,22 @@ public class ReceiverActivity extends AppCompatActivity {
                     Utils.showError(this, e);
                     showError(R.string.error_payment_mismatched);
                 }
-                findViewById(R.id.receiver_success).setVisibility(View.VISIBLE);
                 displayTicket();
             } else {
-                //todo: display ticket using number from JWT response, but because data is incorrect store it with ?? instead of actual data
+                try {
+                    Ticket tckt = new Ticket();
+                    tckt.cart_id = response.cart_id;
+                    tckt.QR = ticket.QR.substring(0,2) + String.valueOf(response.cart_id);
+                    tckt.isPurchased = true;
+                    Utils.storeTicket(this, tckt);
+                    displayTicket();
+                } catch (Exception e) {
+                    Utils.showError(this, e);
+                }
                 showError(R.string.error_payment_mismatched);
             }
         } else {
+            mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.REMOVE_FROM_CART, Utils.packTicket(ticket.origin_stop_name, ticket.destination_stop_name, ticket.formatteddate));
             showError(R.string.error_payment_cancelled);
         }
 
@@ -70,6 +84,7 @@ public class ReceiverActivity extends AppCompatActivity {
     }
 
     private void displayTicket() {
+        findViewById(R.id.receiver_success).setVisibility(View.VISIBLE);
 
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
 

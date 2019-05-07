@@ -1,12 +1,14 @@
 package com.psanja.tallinntransport.Utils;
 
 import android.content.Context;
+import android.os.Bundle;
 import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.psanja.tallinntransport.DATAclasses.Ticket;
 import com.psanja.tallinntransport.R;
 
@@ -86,4 +88,13 @@ public class Utils {
         }
         return other;
     }
+
+    public static Bundle packTicket(String origin, String destination, String date) {
+        Bundle bundle = new Bundle();
+        bundle.putString(FirebaseAnalytics.Param.ORIGIN, origin);
+        bundle.putString(FirebaseAnalytics.Param.DESTINATION, destination);
+        bundle.putString(FirebaseAnalytics.Param.START_DATE, date);
+        return bundle;
+    }
+
 }

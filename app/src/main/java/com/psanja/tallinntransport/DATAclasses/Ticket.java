@@ -90,7 +90,7 @@ public class Ticket implements Serializable {
                 return true;
             }
         } catch (Exception ignored) {
-
+            return true;
         }
         return false;
     }

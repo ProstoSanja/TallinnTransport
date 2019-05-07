@@ -45,11 +45,11 @@
                 <category android:name="android.intent.category.BROWSABLE" />
 
                 <data
-                    android:host="www.ehub.ee"
+                    android:host="www.thatguyalex.com"
                     android:path="/elron/tulemus"
                     android:scheme="http" />
                 <data
-                    android:host="ehub.ee"
+                    android:host="thatguyalex.com"
                     android:path="/elron/tulemus"
                     android:scheme="https" />
             </intent-filter>

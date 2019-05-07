@@ -10,7 +10,6 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -18,6 +17,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.Volley;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.gson.Gson;
 import com.psanja.tallinntransport.Adapters.TravelAdapter;
 import com.psanja.tallinntransport.DATAclasses.Ticket;
@@ -35,7 +35,6 @@ import java.util.Locale;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentTransaction;
@@ -56,6 +55,7 @@ public class TravelFragment extends Fragment {
     private AutoCompleteTextView view_origin, view_destination;
     private Button view_date;
     private String reqdate;
+    private View loading;
 
     public TravelFragment() {
 
@@ -112,6 +112,8 @@ public class TravelFragment extends Fragment {
         view_destination = holder.findViewById(R.id.travel_destination);
         view_date = holder.findViewById(R.id.travel_date);
 
+        loading = holder.findViewById(R.id.travel_loading);
+
         stopsManager = new StopsManager(context, queue, new StatusManager(new StatusManager.OnStatusListener() {
             @Override
             public void onStatus(StatusManager.Status status) {
@@ -149,14 +151,17 @@ public class TravelFragment extends Fragment {
 
     private void fetchroutes() {
         travelAdapter.clear();
-        String origin = stopsManager.getElronIDs(view_origin.getText().toString().toLowerCase());
-        String destination = stopsManager.getElronIDs(view_destination.getText().toString().toLowerCase());
+        loading.setVisibility(View.VISIBLE);
+        String origintext = view_origin.getText().toString().toLowerCase();
+        String destinationtext = view_destination.getText().toString().toLowerCase();
+        String origin = stopsManager.getElronIDs(origintext);
+        String destination = stopsManager.getElronIDs(destinationtext);
         if (origin == null || destination == null)
             return;
 
         TravelStub.TravelPayload payload = new TravelStub.TravelPayload(reqdate, origin, destination);
-        Utils.log(origin);
-        Utils.log(destination);
+
+        FirebaseAnalytics.getInstance(context).logEvent("elron_search", Utils.packTicket(origintext, destinationtext, reqdate));
 
         GsonRequest tripsrequest = new GsonRequest<>(Request.Method.PUT, "https://api.ridango.com/v2/64/intercity/stopareas/trips/direct", TravelStub.TravelResponse.class, gson.toJson(payload),
                 new Response.Listener<TravelStub.TravelResponse>() {
@@ -168,11 +173,13 @@ public class TravelFragment extends Fragment {
                             travelTrip.formatteddate = reqdate;
                             travelAdapter.add(travelTrip);
                         }
+                        loading.setVisibility(View.INVISIBLE);
                     }
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
                 Utils.showError(context, error);
+                loading.setVisibility(View.INVISIBLE);
             }
         });
         queue.add(tripsrequest);

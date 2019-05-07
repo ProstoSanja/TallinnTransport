@@ -19,6 +19,7 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.Volley;
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.gson.Gson;
 import com.psanja.tallinntransport.DATAclasses.PurchaseMethod;
 import com.psanja.tallinntransport.DATAclasses.PurchaseStub;
@@ -38,6 +39,8 @@ import androidx.fragment.app.FragmentActivity;
 public class PurchaseFragment extends Fragment implements PaymentFragment.OnPaymentMethodSelectedListener {
 
     private static final String PARAM1 = "ticket";
+
+    private FirebaseAnalytics mFirebaseAnalytics;
 
     private FragmentActivity context;
     private RequestQueue queue;
@@ -66,6 +69,7 @@ public class PurchaseFragment extends Fragment implements PaymentFragment.OnPaym
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         context = requireActivity();
+        mFirebaseAnalytics = FirebaseAnalytics.getInstance(context);
         queue = Volley.newRequestQueue(context);
         if (getArguments() != null) {
             ticket = gson.fromJson(getArguments().getString(PARAM1), Ticket.class);
@@ -81,6 +85,8 @@ public class PurchaseFragment extends Fragment implements PaymentFragment.OnPaym
         ((AppCompatActivity)context).getSupportActionBar().setElevation(4);
 
         Utils.populateTicket(holder, ticket);
+
+        mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.ADD_TO_CART, Utils.packTicket(ticket.origin_stop_name, ticket.destination_stop_name, ticket.formatteddate));
 
         view_email = holder.findViewById(R.id.purchase_email);
         view_email.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -227,7 +233,9 @@ public class PurchaseFragment extends Fragment implements PaymentFragment.OnPaym
 
         view_paybutton.setEnabled(false);
 
-        String url = "https://ehub.ee/elron_test.html?banklink_account_id="+purchaseMethod.banklink_account_id+"&payment_id="+purchaseMethod.uniq_id+"&shopping_cart_id="+ ticket.cart_id+"&lang=en";
+        mFirebaseAnalytics.logEvent("cart_go_to_payment", Utils.packTicket(ticket.origin_stop_name, ticket.destination_stop_name, ticket.formatteddate));
+
+        String url = "https://thatguyalex.com/elron_beta.html?banklink_account_id="+purchaseMethod.banklink_account_id+"&payment_id="+purchaseMethod.uniq_id+"&shopping_cart_id="+ ticket.cart_id+"&lang=en";
         Utils.log(url);
         CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
         builder.setToolbarColor(getResources().getColor(R.color.colorPrimary));

@@ -56,7 +56,7 @@ public class Stop {
                 JSONObject dep = data.getJSONObject(i);
                 if (dep.getString("tegelik_aeg").isEmpty()) {
                     String dest = dep.getString("liin").split("-")[1].trim();
-                    if (dest.toLowerCase().equals(name.toLowerCase()))
+                    if (dest.toLowerCase().indexOf(name.toLowerCase()) == 0)
                         continue;
                     Departure newitem = new Departure(context, queue, dest, dep.getString("reis"), dep.getString("plaaniline_aeg"));
                     if (!newitem.deleteMe) {
