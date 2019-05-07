@@ -10,6 +10,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
@@ -17,11 +18,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.PreferenceManager;
 import androidx.viewpager.widget.ViewPager;
 
+import android.graphics.drawable.AnimationDrawable;
+import android.graphics.drawable.TransitionDrawable;
 import android.os.Bundle;
 
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import com.android.volley.RequestQueue;
@@ -79,7 +83,7 @@ public class MainActivity extends AppCompatActivity implements StatusManager.OnS
 
     private void setupAll() {
         setContentView(R.layout.activity_main);
-        setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
+        //setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
 
         queue = Volley.newRequestQueue(this);
 
@@ -238,6 +242,7 @@ public class MainActivity extends AppCompatActivity implements StatusManager.OnS
         if (mapManager != null) {
             mapManager.start();
         }
+        ((AppCompatImageButton) this.findViewById(R.id.main_search_button)).setImageDrawable(getResources().getDrawable(R.drawable.ic_close));
     }
 
     @Override
