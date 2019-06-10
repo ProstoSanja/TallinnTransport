@@ -235,7 +235,11 @@ public class DeparturesFragment extends Fragment implements SwipeRefreshLayout.O
 
         Bundle bundle = new Bundle();
         bundle.putString(FirebaseAnalytics.Param.SEARCH_TERM, stop);
-        bundle.putString(FirebaseAnalytics.Param.ITEM_VARIANT, amIsearch ? "search" : "location");
+        if (amIsearch) {
+            bundle.putString(FirebaseAnalytics.Param.ITEM_VARIANT, "search");
+        } else {
+            bundle.putString(FirebaseAnalytics.Param.ITEM_VARIANT, "location");
+        }
         mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SEARCH, bundle);
 
         mainAdapter.clear();

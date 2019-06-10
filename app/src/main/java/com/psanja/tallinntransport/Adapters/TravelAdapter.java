@@ -53,6 +53,8 @@ public class TravelAdapter extends RecyclerView.Adapter<TravelAdapter.ViewHolder
     }
 
     public void add(TravelTrip travelTrip) {
+        if (travelTrip.getInPast())
+            return;
         dataset.add(travelTrip);
         notifyDataSetChanged();
     }

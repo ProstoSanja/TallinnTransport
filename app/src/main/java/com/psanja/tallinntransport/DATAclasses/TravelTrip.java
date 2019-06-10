@@ -9,7 +9,9 @@ import com.google.gson.annotations.SerializedName;
 import com.psanja.tallinntransport.Utils.GsonRequest;
 import com.psanja.tallinntransport.Utils.Utils;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -75,6 +77,15 @@ public class TravelTrip {
 
     private String minutesToTime(int minutes) {
         return String.format("%02d:%02d", minutes/60, minutes%60);
+    }
+
+    public boolean getInPast() {
+        try {
+            if (new SimpleDateFormat("yyyy-MM-ddHH:mm").parse(formatteddate + getOriginTime()).before(new Date())) {
+                return true;
+            }
+        } catch (Exception ignored) {}
+        return false;
     }
 
 

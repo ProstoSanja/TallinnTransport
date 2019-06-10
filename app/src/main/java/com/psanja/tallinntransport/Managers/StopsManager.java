@@ -80,10 +80,11 @@ public class StopsManager {
                     getTLT(stopids.getTltIDs(), stop, departuresAdapter);
                 }
             } else {
-                departuresAdapter.add(new Stop(name, context.getResources().getString(R.string.error_unsupported)));
+                throw new Exception();
             }
         } catch (Exception e) {
             departuresAdapter.add(new Stop(name, context.getResources().getString(R.string.error_unsupported)));
+            DownloadStops();
         }
     }
 
