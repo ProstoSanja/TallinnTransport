@@ -7,16 +7,16 @@
     <string name="navigation_search">Otsing</string>
     <string name="navigation_ticket">Piletid</string>
 
-    <string name="error_location">Teie asukoha otsing ebaõnnestus</string>
+    <string name="error_location"> Teie asukoha otsimisel tekkis viga</string>
     <string name="error_big">Väljumiste laadimine ebaõnnestus</string>
     <string name="error_bus">Reaalajas busside väljumised pole kättesaadavad</string>
     <string name="error_train">Reaalajas rongide väljumised pole kättesaadavad</string>
     <string name="error_setup">Rakenduse avamine ebaõnnestus interneti või sisese vea tõttu</string>
     <string name="error_name">Viga</string>
-    <string name="error_retry">Proovi uuesti</string>
+    <string name="error_retry">Proovige uuesti</string>
     <string name="error_unsupported">Pole TLT ega Elroni peatus</string>
-    <string name="error_nostops">Ei leidnud peatusi teit ümber</string>
-    <string name="error_save">Peatuste salvestamine ebaõnnestus</string>
+    <string name="error_nostops"> Teie lähedal peatust ei leitud</string>
+    <string name="error_save"> Peatuse salvestamisel tekkis viga</string>
     <string name="error_elron_down">Viga ühendusel Elroni veebilehega</string>
     <string name="error_elron_parse">Viga Elroni andmete lugemises</string>
     <string name="error_tlt_down">Viga ühendusel TLT veebilehega</string>
@@ -24,24 +24,22 @@
     <string name="error_email">Vale email</string>
     <string name="error_internet">Probleemid andmevahetusega, palun kontrollige interneti sidet</string>
 
-    <string name="error_payment_cart">Toimus viga pileti reserveerimisel, palume vabandust, palun prooviga uuesti algusest</string>
-    <string name="error_payment_cancelled">Ostmine ebaõnnestus või katkestatud</string>
-    <string name="error_payment_mismatched">TÄHELEPANU: Ostmine õnnestus, kuid äpp is saanud toimetada piletit. Me proovime saata seda teile emaili kaudu. \n Palun pange tähele detailid, et võtta meiega ühendust kui te ei saa pileti emaili kaudu</string>
-
+    <string name="error_payment_cart">Vabandame, pileti broneerimisel tekkis viga, palun proovige uuesti</string>
+    <string name="error_payment_cancelled"> Tehingut ei õnnestunud teha</string>
+    <string name="error_payment_mismatched">TÄHELEPANU: Ostmine õnnestus, kuid äpp on saanud toimetada piletit. Me proovime saata seda teile emaili kaudu. \n Palun pange tähele detailid, et võtta meiega ühendust kui te ei saa pileti emaili kaudu</string>
 
     <string name="success_payment">Pilet on edukalt ostetud</string>
 
-
-    <string name="price_train">Hind rongis: %s</string>
+    <string name="price_train">Rongi hind: %s</string>
     <string name="route_time">Sõidu aeg: %s</string>
     <string name="express">EKSPRESS</string>
-    <string name="stop_from">Lahkumine</string>
+    <string name="stop_from">Väljumine</string>
     <string name="stop_to">Saabumine</string>
-    <string name="stop_date">Reisi päev</string>
+    <string name="stop_date">Reisi kuupäev</string>
     <string name="search_hint">Peatuse nimi</string>
     <string name="arrives_cont">Saabub:\u0020</string>
     <string name="route_info">Sõiduplaan</string>
-    <string name="loading">Allalaadimine</string>
+    <string name="loading">Laadimine</string>
     <string name="show_on_map">Näita kaardil</string>
     <string name="close">Sulge</string>
     <string name="email">Email</string>
@@ -58,7 +56,7 @@
 
     <string name="setup_welcome">Tere tulemast Tallinna Transpordisse</string>
     <string name="setup_1">Lõpetan andmete allalaadimine</string>
-    <string name="setup_2">Sellele reakendusele on vaja teada teie asukohta, et näidata väljumisi teie ümber</string>
+    <string name="setup_2">Sellele reakendusele on vaja teada teie asukohta, et näidata väljumisi teie lähedal</string>
     <string name="setup_grant">Luba</string>
     <string name="setup_start">Alusta</string>
 
